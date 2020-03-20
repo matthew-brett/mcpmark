@@ -41,7 +41,7 @@ def main():
     for d in args.dir_names:
         d_path, d_name = op.split(d)
         if d_name not in lookup:
-            print(f'Directory {d} not in lookup')
+            print(f'Directory/filename {d} not in lookup')
             continue
         out_path = op.join(d_path, lookup[d_name])
         if op.isdir(out_path) and not args.clobber:
