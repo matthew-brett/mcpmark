@@ -78,7 +78,8 @@ def main():
     df = get_minimal_df(config)
     component_tests = get_component_tests(config)
     component_names = list(component_tests)
-    create_dirs(op.dirname(args.config_path), component_names)
+    base_path = op.dirname(args.config_path)
+    create_dirs(base_path, component_names)
     sub_path = config['submissions_path']
     for login_id in expected_student_dirs(df, config['known_missing']):
         exp_path = op.join(sub_path, login_id)
@@ -87,7 +88,7 @@ def main():
         nbs = get_component_nbs(exp_path, component_tests)
         for component, nb_fname in nbs.items():
             _, ext = op.splitext(nb_fname)
-            out_fname = op.join(exp_path, f'{login_id}{ext}')
+            out_fname = op.join(base_path, component, f'{login_id}{ext}')
             shutil.copy2(nb_fname, out_fname)
 
 
