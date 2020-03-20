@@ -12,23 +12,27 @@ from glob import glob
 
 from gradools import canvastools as ct
 
+from mcp_utils import read_config, get_minimal_df
 
 BAD_GLOBS = ['__pycache__', '__MACOSX', '.*']
 
 
-def check_unpack(fnames, out_path):
+def check_unpack(fnames, out_path, df, clobber=False):
     known = set()
     for fname in fnames:
-        out_dir = check_unpack1(fname, out_path, known)
+        out_dir = check_unpack1(fname, out_path, df, clobber, known)
         print(f'Unpacked {fname} to {out_dir}')
 
 
-def check_unpack1(fname, out_path, known):
+def check_unpack1(fname, out_path, df, clobber, known):
     name1, name2, id_no = ct.fname2key(fname)
     assert name2 == ''
-    assert name1 not in known
-    this_out = op.join(out_path, name1)
+    st_login = df.loc[int(id_no), 'SIS Login ID']
+    assert st_login not in known
+    this_out = op.join(out_path, st_login)
     if op.isdir(this_out):
+        if not clobber:
+            raise RuntimeError(f'Directory "{this_out}" exists')
         shutil.rmtree(this_out)
     os.makedirs(this_out)
     with ZipFile(fname, 'r') as zf:
@@ -51,25 +55,25 @@ def check_unpack1(fname, out_path, known):
 def get_parser():
     parser = ArgumentParser(description=__doc__,  # Usage from docstring
                             formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument('zip_submission_path',
-                        help='Directory containing zip file submissions')
-    parser.add_argument('--out-path',
-                        default=op.join(os.getcwd(), 'submissions'),
-                        help='Path for output directories')
+    parser.add_argument('--config-path',
+                        default=op.join(os.getcwd(), 'assign_config.yaml'),
+                        help='Path to config file')
+    parser.add_argument('--clobber', action='store_true',
+                        help='If set, delete existing output directories')
     return parser
 
 
 def main():
     parser = get_parser()
     args = parser.parse_args()
-    zip_glob = op.join(args.zip_submission_path, '*.zip')
+    config = read_config(args.config_path)
+    zip_glob = op.join(config['assignment_zip_path'], '*.zip')
     zip_fnames = glob(zip_glob)
     if len(zip_fnames) == 0:
         raise RuntimeError(f'No files with glob "{zip_glob}"')
-    if op.isdir(args.out_path) and os.listdir(args.out_path):
-        raise RuntimeError(
-            f'Out path "{args.out_path}" exists and is not empty')
-    check_unpack(zip_fnames, args.out_path)
+    out_path = config['submissions_path']
+    df = get_minimal_df(config)
+    check_unpack(zip_fnames, out_path, df, clobber=args.clobber)
 
 
 if __name__ == '__main__':
