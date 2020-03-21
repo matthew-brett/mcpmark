@@ -13,6 +13,9 @@ from gradools import canvastools as ct
 BAD_NAME_CHARS = '- '
 
 
+class MCPError(Exception):
+    """ Class for MCP errors """ 
+
 def read_canvas(canvas_fname):
     required = ('ID', 'Student', 'SIS User ID', 'SIS Login ID', 'Section')
     dtypes = {'ID': int, 'SIS User ID': int}
@@ -71,17 +74,26 @@ def get_notebooks(in_dir, lexts=('.rmd', '.ipynb'), first_only=False):
     Returns
     -------
     nb_fnames : list
-        List of notebook filenames.
+        List of notebook filenames.  If `first_only` is False, then return all
+        notebooks with the first extension in `lexts`, followed by all
+        notebooks with the second extension in `lexts`, etc.  Within extension
+        group, the filenames will be sorted.
     """
     nbs = []
+    found = set()
     for root, dirs, files in os.walk(in_dir):
-        for fn in sorted(files):
-            lext = op.splitext(fn)[1].lower()
-            for candidate_lext in lexts:
-                if lext == candidate_lext:
-                    nbs.append(op.join(root, fn))
-                    if first_only:
-                        continue
+        fnames = [op.join(root, fn) for fn in sorted(files)]
+        if len(fnames) == 0:
+            continue
+        froots, exts = list(zip(*[op.splitext(fn) for fn in fnames]))
+        fn_lexts = [e.lower() for e in exts]
+        for candidate_lext in lexts:
+            for (froot, fn_lext, fn) in zip(froots, fn_lexts, fnames):
+                if first_only and froot in found:
+                    continue
+                if fn_lext == candidate_lext:
+                    nbs.append(fn)
+                    found.add(froot)
     return nbs
 
 
