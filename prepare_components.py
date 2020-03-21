@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-""" Rewrite component notebooks into their own directories.
+""" Prepare components for marking
+
+* Rewrite component notebooks into their own directories.
+* Make Rmd versions of notebooks.
+* Create `broken` subdirectory.
+* Write empty `broken.csv` marks file.
 """
 
 import os
@@ -20,7 +25,7 @@ def get_component_nbs(in_dir, component_tests):
         for component, component_test in component_tests.items():
             if component_test(nb, nb_fname):
                 assert component not in component_nbs
-                component_nbs[component] = nb_fname
+                component_nbs[component] = (nb_fname, nb)
     assert sorted(component_nbs) == sorted(component_tests)
     return component_nbs
 
@@ -78,10 +83,20 @@ def main():
         if not op.isdir(exp_path):
             raise RuntimeError(f'{exp_path} expected, but does not exist')
         nbs = get_component_nbs(exp_path, component_tests)
-        for component, nb_fname in nbs.items():
+        for component, (nb_fname, nb) in nbs.items():
+            component_root = op.join(component_base, component)
             _, ext = op.splitext(nb_fname)
-            out_fname = op.join(component_base, component, f'{login_id}{ext}')
-            shutil.copy2(nb_fname, out_fname)
+            out_root = op.join(component_root, login_id)
+            shutil.copy2(nb_fname, out_root + ext)
+            if ext.lower() != '.rmd':  # Write Rmd version if necessary.
+                jupytext.write(nb, out_root + '.Rmd', fmt='Rmd')
+            # Prepare for broken notebooks.
+            create_dirs(component_root, ['broken'])
+            gitignore = op.join(component_root, 'broken', '.gitignore')
+            with open(gitignore, 'wt') as fobj:  # To preserve in git repo.
+                fobj.write('# Gitignore patterns\n')
+            with open(op.join(component_root, 'broken.csv'), 'wt') as fobj:
+                fobj.write('SIS Login ID,Mark\n')
 
 
 if __name__ == '__main__':
