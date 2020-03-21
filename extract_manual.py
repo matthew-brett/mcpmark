@@ -8,18 +8,15 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 import jupytext
 
-from mcp_utils import (read_config, get_minimal_df, get_notebooks,
-                       loginfn2login, MCPError)
+from mcp_utils import (read_config, get_notebooks, loginfn2login, MCPError)
 
 
 
 def get_parser():
     parser = ArgumentParser(description=__doc__,  # Usage from docstring
                             formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument('nb_path',
-                        help='Path to notebooks to extract from')
-    parser.add_argument('ex_labels', nargs='+',
-                        help='Labels for manual exercises')
+    parser.add_argument('component',
+                        help='Component name for which to extract')
     parser.add_argument('--config-path',
                         default=op.join(os.getcwd(), 'assign_config.yaml'),
                         help='Path to config file')
@@ -71,14 +68,18 @@ def write_answers(all_answers, out_path):
 def main():
     parser = get_parser()
     args = parser.parse_args()
+    config = read_config(args.config_path)
+    base_path = op.dirname(args.config_path)
+    ex_labels = config['components'][args.component]['manual_qs']
+    nb_path = op.join(base_path, 'components', args.component)
     lexts = args.nb_lext if args.nb_lext else ['.rmd', '.ipynb']
-    nb_fnames = get_notebooks(args.nb_path, lexts, first_only=True)
+    nb_fnames = get_notebooks(nb_path, lexts, first_only=True)
     if len(nb_fnames) == 0:
-        raise RuntimeError(f'No notebooks found in path "{args.nb_path}" '
+        raise RuntimeError(f'No notebooks found in path "{nb_path}" '
                            f'with extensions {lexts}')
-    all_answers = process_nbs(nb_fnames, args.ex_labels)
+    all_answers = process_nbs(nb_fnames, ex_labels)
     assert len(all_answers) == len(nb_fnames)
-    write_answers(all_answers, args.nb_path)
+    write_answers(all_answers, nb_path)
 
 
 if __name__ == '__main__':
