@@ -1,4 +1,5 @@
-""" Unpack submissions into named directories
+#!/usr/bin/env python
+""" Rewrite component notebooks into their own directories.
 """
 
 import os
@@ -8,17 +9,7 @@ import shutil
 
 import jupytext
 
-from mcp_utils import read_config, get_minimal_df
-
-
-def get_notebooks(in_dir):
-    nbs = []
-    for root, dirs, files in os.walk(in_dir):
-        for fn in files:
-            lext = op.splitext(fn)[1].lower()
-            if lext in ('.ipynb', '.Rmd'):
-                nbs.append(op.join(root, fn))
-    return nbs
+from mcp_utils import (read_config, get_minimal_df, get_notebooks)
 
 
 def get_component_nbs(in_dir, component_tests):
@@ -79,7 +70,8 @@ def main():
     component_tests = get_component_tests(config)
     component_names = list(component_tests)
     base_path = op.dirname(args.config_path)
-    create_dirs(base_path, component_names)
+    component_base = op.join(base_path, 'components')
+    create_dirs(component_base, component_names)
     sub_path = config['submissions_path']
     for login_id in expected_student_dirs(df, config['known_missing']):
         exp_path = op.join(sub_path, login_id)
@@ -88,7 +80,7 @@ def main():
         nbs = get_component_nbs(exp_path, component_tests)
         for component, nb_fname in nbs.items():
             _, ext = op.splitext(nb_fname)
-            out_fname = op.join(base_path, component, f'{login_id}{ext}')
+            out_fname = op.join(component_base, component, f'{login_id}{ext}')
             shutil.copy2(nb_fname, out_fname)
 
 

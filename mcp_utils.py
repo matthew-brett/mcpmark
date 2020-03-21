@@ -1,6 +1,7 @@
 """ Utilities for marking components.
 """
 
+import os
 import os.path as op
 
 import yaml
@@ -51,3 +52,15 @@ def full2cv_lookup(full_name, config):
         if full_name in v:
             return k
     return full2cv_name(full_name)
+
+
+def get_notebooks(in_dir):
+    nbs = []
+    for root, dirs, files in os.walk(in_dir):
+        for fn in files:
+            lext = op.splitext(fn)[1].lower()
+            if lext in ('.ipynb', '.Rmd'):
+                nbs.append(op.join(root, fn))
+    return nbs
+
+

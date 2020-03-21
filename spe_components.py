@@ -1,4 +1,9 @@
 """ Tests for notebook components
+
+This file must define a dictionary `COMPONENT_TESTS`, with keys that are the
+component names, and values, a function accepting the loaded notebook object
+and the notebook filename.  The tests return True when the notebook matches the
+component.
 """
 
 import re
