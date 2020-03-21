@@ -7,7 +7,7 @@ import sys
 HERE = op.realpath(op.dirname(__file__))
 sys.path.append(op.join(HERE, '..'))
 
-from mcp_utils import get_notebooks
+from mcp_utils import get_notebooks, get_manual_scores, MCPError
 
 import pytest
 
@@ -44,3 +44,78 @@ def test_get_notebooks(tmp_path):
             [mp('bar.Rmd'), mp('foo.Rmd'), mp('baz.ipynb'), mp('foo.ipynb')])
     assert (get_notebooks(tmp_path, first_only=True) ==
             [mp('bar.Rmd'), mp('foo.Rmd'), mp('baz.ipynb')])
+
+
+def test_get_manual_scores():
+    res = get_manual_scores('')
+    assert res == {}
+    res = get_manual_scores("""
+
+## someone
+
+Some text.
+
+Several lines
+
+    MCPScore : .4
+
+## another person
+
+More text.
+
+More lines.
+
+ MCPScore   : 1
+""")
+    assert res == {'someone': 0.4, 'another person': 1}
+    res = get_manual_scores("""
+
+## An other person
+
+MCPScore : 0.05
+
+## Who now?
+
+MCPScore : 1
+
+""")
+    # Missing final score.
+    assert res == {'An other person': 0.05, 'Who now?': 1.0}
+    with pytest.raises(MCPError):
+        res = get_manual_scores("""
+
+## An other person
+
+MCPScore : 0.05
+
+## Who now?
+
+""")
+    # Two scores.
+    with pytest.raises(MCPError):
+        res = get_manual_scores("""
+
+## An other person
+
+MCPScore : 0.05
+
+MCPScore : 1
+
+## Who now?
+
+MCPScore : 1
+
+""")
+    # Score prefix has wrong case - missing score.
+    with pytest.raises(MCPError):
+        res = get_manual_scores("""
+
+## An other person
+
+MCPscore : 0.05
+
+## Who now?
+
+MCPScore : 1
+
+""")

@@ -145,3 +145,53 @@ def nbs_to_markups(nb_fnames):
         rows.append([int(stid), name, sum(markups)])
     df = pd.DataFrame(data=rows, columns=['ID', 'Student', 'Mark'])
     return df.set_index('ID')
+
+
+def _check_total(line, name, marks, required_fields, msg_lines):
+    missing = set(required_fields).difference(marks)
+    if len(missing):
+        msg_lines.append("Required field{} {} not present".format(
+            's' if len(missing) > 1 else '',
+            ', '.join(sorted(missing))))
+    actual_total = sum(marks.values())
+    if not line.lower().startswith('total'):
+        msg_lines.append("Expecting total {} for {}".format(
+            actual_total, name))
+        return
+    total = float(line.split(':')[1])
+    if not total == sum(marks.values()):
+        msg_lines.append("Expected {} for {}, got {}".format(
+            actual_total, name, total))
+
+
+
+NAME_RE = re.compile(r'^##\s+(.*)\s*$')
+SCORE_RE = re.compile(r'\s*MCPScore\s*:\s*([0-9.]+)\s*$')
+
+
+def get_manual_scores(contents):
+    """ Parse contents of markdown file from manual marking
+    """
+    scores = {}
+    state = 'before'
+    for line in contents.splitlines():
+        if state == 'before':
+            match = NAME_RE.search(line)
+            if match is None:
+                # Should be no further scores
+                if SCORE_RE.search(line):
+                    raise MCPError(f'Multiple scores - see {line}')
+                continue
+            state = 'find_score'
+            name = match.groups()[0]
+        elif state == 'find_score':
+            match = SCORE_RE.search(line)
+            if match is None:
+                if NAME_RE.search(line):
+                    raise MCPError(f'Missing score for {name}')
+                continue
+            scores[name] = float(match.groups()[0])
+            state = 'before'
+    if state == 'find_score':
+        raise MCPError(f'Missing score for {name}')
+    return scores

@@ -62,8 +62,8 @@ def write_answers(all_answers, out_path):
         lines = [f'# Answers for {label}', '']
         for login, a_dict in all_answers.items():
             answer = a_dict[label]
-            lines += [f'## {login}', '', f'{answer}', '', 'Score:', '']
-        out_fname = op.join(out_path, label + '.md')
+            lines += [f'## {login}', '', f'{answer}', '', 'MCPScore:', '']
+        out_fname = op.join(out_path, f'{label}_report.md')
         with open(out_fname, 'wt') as fobj:
             fobj.write('\n'.join(lines))
 
