@@ -54,13 +54,32 @@ def full2cv_lookup(full_name, config):
     return full2cv_name(full_name)
 
 
-def get_notebooks(in_dir):
+def get_notebooks(in_dir, lexts=('.rmd', '.ipynb'), first_only=False):
+    """ Return notebooks filenames from directory `in_dir`
+
+    Parameters
+    ----------
+    in_dir : str
+        Directory in which to do not-recursive search for notebooks.
+    lexts : sequence, optional
+        Filename extensions that identify notebooks, in lower case.  Order of
+        extensions is order in which filenames will be returned.
+    first_only : {False, True}, optional
+        If False, return all notebooks matching `lexts` criterion.  If True,
+        return only the first notebook matching the `lexts` criterion.
+
+    Returns
+    -------
+    nb_fnames : list
+        List of notebook filenames.
+    """
     nbs = []
     for root, dirs, files in os.walk(in_dir):
-        for fn in files:
+        for fn in sorted(files):
             lext = op.splitext(fn)[1].lower()
-            if lext in ('.ipynb', '.Rmd'):
-                nbs.append(op.join(root, fn))
+            for candidate_lext in lexts:
+                if lext == candidate_lext:
+                    nbs.append(op.join(root, fn))
+                    if first_only:
+                        continue
     return nbs
-
-
