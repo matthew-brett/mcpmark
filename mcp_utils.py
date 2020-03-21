@@ -83,3 +83,7 @@ def get_notebooks(in_dir, lexts=('.rmd', '.ipynb'), first_only=False):
                     if first_only:
                         continue
     return nbs
+
+
+def loginfn2login(fname):
+    return op.splitext(op.basename(fname))[0]
