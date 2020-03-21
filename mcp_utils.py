@@ -3,11 +3,14 @@
 
 import os
 import os.path as op
+import re
 
 import yaml
 import numpy as np
+import pandas as pd
 
 from gradools import canvastools as ct
+from rnbgrader.grader import CanvasGrader
 
 
 BAD_NAME_CHARS = '- '
@@ -15,6 +18,7 @@ BAD_NAME_CHARS = '- '
 
 class MCPError(Exception):
     """ Class for MCP errors """ 
+
 
 def read_canvas(canvas_fname):
     required = ('ID', 'Student', 'SIS User ID', 'SIS Login ID', 'Section')
@@ -99,3 +103,45 @@ def get_notebooks(in_dir, lexts=('.rmd', '.ipynb'), first_only=False):
 
 def loginfn2login(fname):
     return op.splitext(op.basename(fname))[0]
+
+
+def read_grade_output(grades_fname):
+    """ Parse output from grade_oknb.py script
+    """
+    with open(grades_fname, 'rt') as fobj:
+        output = fobj.read()
+
+    parts = re.split('^(\w+_.*\.Rmd)$', output, flags=re.M)
+    if parts[0].strip() == '':
+        parts.pop(0)
+
+    rows = []
+    for i in range(0, len(parts), 2):
+        fname = parts[i]
+        result = parts[i + 1]
+        assert fname.endswith('.Rmd')
+        assert len(result)
+        total_match = re.search('^Total: (\d+)$', result, flags=re.M)
+        if total_match is None:
+            print('No total for', fname, '- please check')
+            continue
+        name, _, stid = ct.fname2key(fname)
+        mark = float(total_match.groups()[0])
+        rows.append([int(stid), name, mark])
+    df = pd.DataFrame(data=rows, columns=['ID', 'Student', 'Mark'])
+    return df.set_index('ID')
+
+
+def nbs_to_markups(nb_fnames):
+    """ Manual adjustments from notebook text
+    """
+    cg = CanvasGrader()
+    rows = []
+    for nb_fname in nb_fnames:
+        name, _, stid = ct.fname2key(nb_fname)
+        markups = cg.mark_markups(nb_fname)
+        if len(markups) == 0:
+            continue
+        rows.append([int(stid), name, sum(markups)])
+    df = pd.DataFrame(data=rows, columns=['ID', 'Student', 'Mark'])
+    return df.set_index('ID')
