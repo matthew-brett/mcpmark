@@ -69,11 +69,13 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
     config = read_config(args.config_path)
-    base_path = op.dirname(args.config_path)
     ex_labels = config['components'][args.component]['manual_qs']
-    nb_path = op.join(base_path, 'components', args.component)
+    nb_path = op.join(config['base_path'], 'components', args.component)
     lexts = args.nb_lext if args.nb_lext else ['.rmd', '.ipynb']
-    nb_fnames = get_notebooks(nb_path, lexts, first_only=True)
+    nb_fnames = get_notebooks(nb_path,
+                              recursive=True,
+                              lexts=lexts,
+                              first_only=True)
     if len(nb_fnames) == 0:
         raise RuntimeError(f'No notebooks found in path "{nb_path}" '
                            f'with extensions {lexts}')

@@ -18,7 +18,7 @@ from mcp_utils import (read_config, get_minimal_df, get_notebooks)
 
 
 def get_component_nbs(in_dir, component_tests):
-    notebooks = get_notebooks(in_dir)
+    notebooks = get_notebooks(in_dir, recursive=True)
     component_nbs = {}
     for nb_fname in notebooks:
         nb = jupytext.read(nb_fname)
@@ -37,11 +37,13 @@ def get_component_tests(config):
     return ns['COMPONENT_TESTS']
 
 
-def expected_student_dirs(df, known_missing):
+def expected_student_dirs(config):
+    df = get_minimal_df(config)
+    stid_col = config['student_id_col']
     dir_names = []
     for i_val, row in df.iterrows():
-        login_id = row.loc['SIS Login ID']
-        if login_id not in known_missing:
+        login_id = row.loc[stid_col]
+        if login_id not in config['known_missing']:
             dir_names.append(login_id)
     assert len(set(dir_names)) == len(dir_names)  # Unique check
     return dir_names
@@ -71,14 +73,14 @@ def main():
     if args.out_path is None:
         args.out_path = op.dirname(args.config_path)
     config = read_config(args.config_path)
-    df = get_minimal_df(config)
+    stid_col = config['student_id_col']
     component_tests = get_component_tests(config)
     component_names = list(component_tests)
     base_path = op.dirname(args.config_path)
     component_base = op.join(base_path, 'components')
     create_dirs(component_base, component_names)
     sub_path = config['submissions_path']
-    for login_id in expected_student_dirs(df, config['known_missing']):
+    for login_id in expected_student_dirs(config):
         exp_path = op.join(sub_path, login_id)
         if not op.isdir(exp_path):
             raise RuntimeError(f'{exp_path} expected, but does not exist')
@@ -96,7 +98,7 @@ def main():
             with open(gitignore, 'wt') as fobj:  # To preserve in git repo.
                 fobj.write('# Gitignore patterns\n')
             with open(op.join(component_root, 'broken.csv'), 'wt') as fobj:
-                fobj.write('SIS Login ID,Mark\n')
+                fobj.write(f'{stid_col},Mark\n')
 
 
 if __name__ == '__main__':

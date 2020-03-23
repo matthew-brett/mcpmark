@@ -36,6 +36,10 @@ def read_config(config_fname):
             continue
         if not op.isabs(value):
             res[key] = op.join(config_path, value)
+    # Directory containing config file.
+    res['base_path'] = op.dirname(config_fname)
+    # Defaults
+    res['student_id_col'] = res.get('student_id_col', "SIS Login ID")
     return res
 
 
@@ -61,19 +65,26 @@ def full2cv_lookup(full_name, config):
     return full2cv_name(full_name)
 
 
-def get_notebooks(in_dir, lexts=('.rmd', '.ipynb'), first_only=False):
+
+
+def get_notebooks(in_dir,
+                  lexts=('.rmd', '.ipynb'),
+                  first_only=False,
+                  recursive=False):
     """ Return notebooks filenames from directory `in_dir`
 
     Parameters
     ----------
     in_dir : str
-        Directory in which to do not-recursive search for notebooks.
+        Directory in which to search for notebooks.
     lexts : sequence, optional
         Filename extensions that identify notebooks, in lower case.  Order of
         extensions is order in which filenames will be returned.
     first_only : {False, True}, optional
         If False, return all notebooks matching `lexts` criterion.  If True,
         return only the first notebook matching the `lexts` criterion.
+    recursive : {False, True}, optional
+        Whether to do recursive search in `in_dir`.
 
     Returns
     -------
@@ -86,6 +97,8 @@ def get_notebooks(in_dir, lexts=('.rmd', '.ipynb'), first_only=False):
     nbs = []
     found = set()
     for root, dirs, files in os.walk(in_dir):
+        if not recursive:
+            dirs[:] = []
         fnames = [op.join(root, fn) for fn in sorted(files)]
         if len(fnames) == 0:
             continue
@@ -167,6 +180,7 @@ def _check_total(line, name, marks, required_fields, msg_lines):
 
 NAME_RE = re.compile(r'^##\s+(.*)\s*$')
 SCORE_RE = re.compile(r'\s*MCPScore\s*:\s*([0-9.]+)\s*$')
+QUESTION_RE = re.compile(r'^(.*)_report\.md')
 
 
 def get_manual_scores(contents):
@@ -195,3 +209,12 @@ def get_manual_scores(contents):
     if state == 'find_score':
         raise MCPError(f'Missing score for {name}')
     return scores
+
+
+def read_manual(fname):
+    """ Parse markdown file `fname` from manual marking
+    """
+    q_name = QUESTION_RE.match(op.basename(fname)).groups()[0]
+    with open(fname, 'rt') as fobj:
+        contents = fobj.read()
+    return q_name, get_manual_scores(contents)

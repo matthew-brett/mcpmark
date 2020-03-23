@@ -17,17 +17,17 @@ from mcp_utils import read_config, get_minimal_df
 BAD_GLOBS = ['__pycache__', '__MACOSX', '.*']
 
 
-def check_unpack(fnames, out_path, df, clobber=False):
+def check_unpack(config, fnames, out_path, df, clobber=False):
     known = set()
     for fname in fnames:
-        out_dir = check_unpack1(fname, out_path, df, clobber, known)
+        out_dir = check_unpack1(config, fname, out_path, df, clobber, known)
         print(f'Unpacked {fname} to {out_dir}')
 
 
-def check_unpack1(fname, out_path, df, clobber, known):
+def check_unpack1(config, fname, out_path, df, clobber, known):
     name1, name2, id_no = ct.fname2key(fname)
     assert name2 == ''
-    st_login = df.loc[int(id_no), 'SIS Login ID']
+    st_login = df.loc[int(id_no), config['student_id_col']]
     assert st_login not in known
     this_out = op.join(out_path, st_login)
     if op.isdir(this_out):
