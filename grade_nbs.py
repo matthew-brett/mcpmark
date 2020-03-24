@@ -10,9 +10,6 @@ from grade_oknb import grade_nb_fname
 from mcp_utils import (read_config, get_notebooks, loginfn2login)
 
 
-LOGIN_COL = 'SIS User ID'
-
-
 def get_parser():
     parser = ArgumentParser(description=__doc__,  # Usage from docstring
                             formatter_class=RawDescriptionHelpFormatter)
@@ -50,11 +47,11 @@ def write_grade_csv(config, all_grades, out_path):
     stid_col = config['student_id_col']
     out_fname = op.join(out_path, f'autograde.csv')
     first_grades = all_grades[list(all_grades)[0]]
-    lines = ','.join([stid_col] + list(first_grades) + ['Total'])
+    lines = [','.join([stid_col] + list(first_grades) + ['Total'])]
     for login, grades in all_grades.items():
         values = list(grades.values())
         s_values = [str(v) for v in (values + [sum(values)])]
-        lines = ','.join([login] + s_values)
+        lines.append(','.join([login] + s_values))
     with open(out_fname, 'wt') as fobj:
         fobj.write('\n'.join(lines))
 

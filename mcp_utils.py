@@ -145,19 +145,18 @@ def read_grade_output(grades_fname):
     return df.set_index('ID')
 
 
-def nbs_to_markups(nb_fnames):
+def nbs2markups(nb_fnames):
     """ Manual adjustments from notebook text
     """
     cg = CanvasGrader()
-    rows = []
+    markup_marks = {}
     for nb_fname in nb_fnames:
-        name, _, stid = ct.fname2key(nb_fname)
+        login = loginfn2login(nb_fname)
         markups = cg.mark_markups(nb_fname)
         if len(markups) == 0:
             continue
-        rows.append([int(stid), name, sum(markups)])
-    df = pd.DataFrame(data=rows, columns=['ID', 'Student', 'Mark'])
-    return df.set_index('ID')
+        markup_marks[login] = sum(markups)
+    return markup_marks
 
 
 def _check_total(line, name, marks, required_fields, msg_lines):

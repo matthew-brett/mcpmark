@@ -51,6 +51,9 @@ def main():
     args = parser.parse_args()
     lexts = args.nb_lext if args.nb_lext else ['.rmd', '.ipynb']
     nb_fnames = get_notebooks(args.nb_path, lexts, first_only=True)
+    if len(nb_fnames) == 0:
+        raise RuntimeError(f'No notebooks found in path "{args.nb_path}" '
+                           f'with extensions {lexts}')
     start_fname = op.join(op.dirname(nb_fnames[0]), START_FNAME)
     execute_nbs(nb_fnames, start_fname)
 
