@@ -8,6 +8,8 @@ import re
 import yaml
 import numpy as np
 import pandas as pd
+import nbformat.v4 as nbf
+from nbconvert.preprocessors import ExecutePreprocessor
 
 from gradools import canvastools as ct
 from rnbgrader.grader import CanvasGrader
@@ -17,7 +19,7 @@ BAD_NAME_CHARS = '- '
 
 
 class MCPError(Exception):
-    """ Class for MCP errors """ 
+    """ Class for MCP errors """
 
 
 def read_canvas(canvas_fname):
@@ -217,3 +219,47 @@ def read_manual(fname):
     with open(fname, 'rt') as fobj:
         contents = fobj.read()
     return q_name, get_manual_scores(contents)
+
+
+def get_plot_nb(nb):
+    """ Notebook with cells containing plots from `nb`
+
+    Parameters
+    ----------
+    nb : dict
+        Notebook.
+
+    Returns
+    -------
+    plot_nb : dict
+        Stripped notebook containing only plot outputs.
+    """
+    plot_nb = nbf.new_notebook()
+    for cell in nb.cells:
+        if not cell['cell_type'] == 'code':
+            continue
+        new_outputs = []
+        for output in cell['outputs']:
+            if output['output_type'] != 'display_data':
+                continue
+            if not 'data' in output:
+                continue
+            od = output['data']
+            if not 'image/png' in od:
+                continue
+            no = nbf.new_output('display_data', od)
+            new_outputs.append(no)
+        if new_outputs:
+            nc = nbf.new_code_cell()
+            nc['outputs'] = new_outputs
+            plot_nb.cells.append(nc)
+    return plot_nb
+
+
+def execute_nb(nb, path):
+    storage_path = op.join(path, '.ok_storage')
+    if op.exists(storage_path):
+        os.unlink(storage_path)
+    ep = ExecutePreprocessor()
+    ep.preprocess(nb, {'metadata': {'path': path}})
+    return nb
