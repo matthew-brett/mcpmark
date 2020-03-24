@@ -54,7 +54,9 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
     config = read_config(args.config_path)
-    base_path = op.dirname(args.config_path)
+    base_path = config['base_path']
+    if not args.component in config['components']:
+        raise RuntimeError(f'"{args.component}" not in config')
     component_path = op.join(base_path, 'components', args.component)
     cp_model(args.model_path, component_path)
 
