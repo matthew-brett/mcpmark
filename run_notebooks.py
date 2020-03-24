@@ -29,10 +29,9 @@ def execute_nbs(fnames, start_fname):
         try:
             executenb(nb, op.dirname(nb_fname))
         except CellExecutionError as e:
-            print(f'Error in {nb_fname}')
             with open(start_fname, 'wt') as fobj:
                 fobj.write(nb_fname)
-            raise
+            raise e.__class__(str(e) + f'\nError in {nb_fname}')
 
 
 def get_parser():
