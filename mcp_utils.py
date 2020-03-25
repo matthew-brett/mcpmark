@@ -185,18 +185,20 @@ SCORE_RE = re.compile(r'\s*MCPScore\s*:\s*([0-9.]+)\s*$')
 QUESTION_RE = re.compile(r'^(.*)_report\.md')
 
 
-def get_manual_scores(contents):
+def get_manual_scores(contents, fname=None):
     """ Parse contents of markdown file from manual marking
     """
     scores = {}
     state = 'before'
+    fname_label = '<unknown>' if fname is None else fname
     for line in contents.splitlines():
         if state == 'before':
             match = NAME_RE.search(line)
             if match is None:
                 # Should be no further scores
                 if SCORE_RE.search(line):
-                    raise MCPError(f'Multiple scores - see {line}')
+                    raise MCPError(
+                        f'Multiple scores - see {line} in {fname_label}')
                 continue
             state = 'find_score'
             name = match.groups()[0]
@@ -204,12 +206,14 @@ def get_manual_scores(contents):
             match = SCORE_RE.search(line)
             if match is None:
                 if NAME_RE.search(line):
-                    raise MCPError(f'Missing score for {name}')
+                    raise MCPError(
+                        f'Missing score at line {line} '
+                        f'for {name} in {fname_label}')
                 continue
             scores[name] = float(match.groups()[0])
             state = 'before'
     if state == 'find_score':
-        raise MCPError(f'Missing score for {name}')
+        raise MCPError(f'Missing score for {name} in {fname_label}')
     return scores
 
 
@@ -219,7 +223,7 @@ def read_manual(fname):
     q_name = QUESTION_RE.match(op.basename(fname)).groups()[0]
     with open(fname, 'rt') as fobj:
         contents = fobj.read()
-    return q_name, get_manual_scores(contents)
+    return q_name, get_manual_scores(contents, fname)
 
 
 def get_plot_nb(nb):
@@ -297,7 +301,7 @@ def get_plot_scores(nb_fname):
             scores[name] = st_scores
             state = 'before'
     if state == 'find_scores':
-        raise MCPError(f'Missing scores for {name}')
+        raise MCPError(f'Missing scores for {name} in {nb_fname}')
     return scores
 
 
