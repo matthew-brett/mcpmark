@@ -29,7 +29,7 @@ def write_plot_nb(plot_nbs, plot_qs, out_path):
         nb.cells.append(nbf.new_markdown_cell(f'## {login}'))
         nb.cells += plot_nb.cells
         nb.cells.append(nbf.new_markdown_cell(score_txt))
-    nb_dir = op.join(out_path, 'generated')
+    nb_dir = op.join(out_path, 'marking')
     if not op.isdir(nb_dir):
         os.makedirs(nb_dir)
     with open(op.join(nb_dir, 'plot_nb.ipynb'), 'wt') as fobj:

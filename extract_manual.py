@@ -81,7 +81,7 @@ def main():
                            f'with extensions {lexts}')
     all_answers = process_nbs(nb_fnames, ex_labels)
     assert len(all_answers) == len(nb_fnames)
-    write_answers(all_answers, nb_path)
+    write_answers(all_answers, op.join(nb_path, 'marking'))
 
 
 if __name__ == '__main__':

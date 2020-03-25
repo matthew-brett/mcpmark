@@ -33,7 +33,7 @@ def read_grades(fname, stid_col, total_col):
 def read_plots(config, component):
     splot_qs = set(config['components'][component].get('plot_qs', []))
     cp_path = component_path(config, component)
-    plot_fname = op.join(cp_path, 'generated', 'plot_nb.ipynb')
+    plot_fname = op.join(cp_path, 'marking', 'plot_nb.ipynb')
     if not op.isfile(plot_fname):
         assert len(splot_qs) == 0
         return {}
@@ -47,9 +47,10 @@ def read_plots(config, component):
 
 def read_manuals(config, component):
     manual_qs = config['components'][component].get('manual_qs', [])
-    cp_path = component_path(config, component)
-    expected_manuals = [op.join(cp_path, f'{q}_report.md') for q in manual_qs]
-    actual_manuals = glob(op.join(cp_path, '*_report.md'))
+    mark_path = op.join(component_path(config, component), 'marking')
+    expected_manuals = [op.join(mark_path, f'{q}_report.md')
+                        for q in manual_qs]
+    actual_manuals = glob(op.join(mark_path, '*_report.md'))
     assert set(expected_manuals) == set(actual_manuals)
     return [read_manual(fn)[1] for fn in expected_manuals]
 
@@ -58,7 +59,7 @@ def read_autos(config, component):
     cp_path = component_path(config, component)
     stid_col = config['student_id_col']
     # Read autos file
-    autos = read_grades(op.join(cp_path, 'autograde.csv'),
+    autos = read_grades(op.join(cp_path, 'marking', 'autograde.csv'),
                         stid_col, 'Total')
     # Add annotation marks
     nb_fnames = get_notebooks(cp_path, first_only=True)
@@ -69,6 +70,7 @@ def read_autos(config, component):
 
 def read_broken(config, component):
     broken_path = op.join(component_path(config, component),
+                          'marking',
                           'broken.csv')
     if not op.isfile(broken_path):
         return {}
@@ -107,7 +109,7 @@ def grade_component(config, component):
 def write_component_csv(config, component, grades):
     out_path = component_path(config, component)
     stid_col = config['student_id_col']
-    out_fname = op.join(out_path, f'component.csv')
+    out_fname = op.join(out_path, 'marking', f'component.csv')
     with open(out_fname, 'wt') as fobj:
         fobj.write(f'{stid_col},Mark\n')
         for login, grade in grades.items():

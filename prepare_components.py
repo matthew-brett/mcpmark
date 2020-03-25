@@ -49,11 +49,14 @@ def expected_student_dirs(config):
     return dir_names
 
 
-def create_dirs(root_path, names):
+def create_dirs(root_path, names, gitignore=False):
     for name in names:
         out_path = op.join(root_path, name)
         if not op.isdir(out_path):
             os.makedirs(out_path)
+            if gitignore:
+                with open(op.join(out_path, '.gitignore'), 'wt') as fobj:
+                    fobj.write('')
 
 
 def get_parser():
@@ -92,12 +95,11 @@ def main():
             shutil.copy2(nb_fname, out_root + ext)
             if ext.lower() != '.rmd':  # Write Rmd version if necessary.
                 jupytext.write(nb, out_root + '.Rmd', fmt='Rmd')
-            # Prepare for broken notebooks.
-            create_dirs(component_root, ['broken'])
-            gitignore = op.join(component_root, 'broken', '.gitignore')
-            with open(gitignore, 'wt') as fobj:  # To preserve in git repo.
-                fobj.write('# Gitignore patterns\n')
-            with open(op.join(component_root, 'broken.csv'), 'wt') as fobj:
+            create_dirs(component_root,
+                        ['broken', 'marking'],
+                        gitignore=True)
+            broken_fname = op.join(component_root, 'marking', 'broken.csv')
+            with open(broken_fname, 'wt') as fobj:
                 fobj.write(f'{stid_col},Mark\n')
 
 

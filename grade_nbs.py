@@ -38,14 +38,14 @@ def write_grade_report(all_grades, out_path):
         for tn in sorted(grades):
             lines.append(f'{tn}: {grades[tn]}')
         lines.append(f'Total: {sum(grades.values())}\n')
-    out_fname = op.join(out_path, f'autograde.md')
+    out_fname = op.join(out_path, 'marking', f'autograde.md')
     with open(out_fname, 'wt') as fobj:
         fobj.write('\n'.join(lines))
 
 
 def write_grade_csv(config, all_grades, out_path):
     stid_col = config['student_id_col']
-    out_fname = op.join(out_path, f'autograde.csv')
+    out_fname = op.join(out_path, 'marking', f'autograde.csv')
     first_grades = all_grades[list(all_grades)[0]]
     lines = [','.join([stid_col] + list(first_grades) + ['Total'])]
     for login, grades in all_grades.items():
