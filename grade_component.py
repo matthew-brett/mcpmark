@@ -120,6 +120,7 @@ def write_component_csv(config, component, grades):
         fobj.write(f'{stid_col},Mark\n')
         for login, grade in grades.items():
             fobj.write(f'{login},{grade}\n')
+    return out_fname
 
 
 def get_parser():
@@ -138,7 +139,8 @@ def main():
     args = parser.parse_args()
     config = read_config(args.config_path)
     grades = grade_component(config, args.component)
-    write_component_csv(config, args.component, grades)
+    out_csv = write_component_csv(config, args.component, grades)
+    print(pd.read_csv(out_csv).describe())
 
 
 if __name__ == '__main__':
