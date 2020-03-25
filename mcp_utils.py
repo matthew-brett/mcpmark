@@ -262,7 +262,7 @@ PLOT_LINE = re.compile(r'^\*\s([0-9a-zA-Z_-]+)\s*:\s*([0-9.]+)')
 
 def match_plot_scores(text):
     lines = [L.strip() for L in text.splitlines() if L.strip()]
-    if not lines[0] == 'Plot scores' or len(lines) < 2:
+    if not lines[0] == 'Plot scores:' or len(lines) < 2:
         return
     scores = {}
     for line in lines[1:]:

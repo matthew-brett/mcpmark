@@ -7,7 +7,8 @@ import sys
 HERE = op.realpath(op.dirname(__file__))
 sys.path.append(op.join(HERE, '..'))
 
-from mcp_utils import get_notebooks, get_manual_scores, MCPError
+from mcp_utils import (get_notebooks, get_manual_scores, MCPError,
+                       match_plot_scores)
 
 import pytest
 
@@ -119,3 +120,22 @@ MCPscore : 0.05
 MCPScore : 1
 
 """)
+
+
+def test_match_plot_scores():
+    scores = """Plot scores:
+* complaints_pp : 1
+* complaints_pc : 1
+* complaints_pcp : 0
+"""
+    assert match_plot_scores(scores) == {
+        'complaints_pp': 1,
+        'complaints_pc': 1,
+        'complaints_pcp': 0}
+    scores = """Plot scores:
+* complaints_pp : 0.1
+* complaints_pcp : 3
+"""
+    assert match_plot_scores(scores) == {
+        'complaints_pp': 0.1,
+        'complaints_pcp': 3}
