@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import nbformat.v4 as nbf
 from nbconvert.preprocessors import ExecutePreprocessor
+import jupytext
 
 from gradools import canvastools as ct
 from rnbgrader.grader import CanvasGrader
@@ -256,10 +257,60 @@ def get_plot_nb(nb):
     return plot_nb
 
 
-def execute_nb(nb, path):
-    storage_path = op.join(path, '.ok_storage')
+PLOT_LINE = re.compile(r'^\*\s([0-9a-zA-Z_-]+)\s*:\s*([0-9.]+)')
+
+
+def match_plot_scores(text):
+    lines = [L.strip() for L in text.splitlines() if L.strip()]
+    if not lines[0] == 'Plot scores' or len(lines) < 2:
+        return
+    scores = {}
+    for line in lines[1:]:
+        m = PLOT_LINE.search(line)
+        if not m:
+            break
+        key, value = m.groups()
+        scores[key] = float(value)
+    return scores
+
+
+def get_plot_scores(nb_fname):
+    """ Parse contents of notebook for plot scores.
+    """
+    nb = jupytext.read(nb_fname)
+    scores = {}
+    state = 'before'
+    for cell in nb.cells:
+        if not cell['cell_type'] == 'markdown':
+            continue
+        text = cell['source']
+        if state == 'before':
+            match = NAME_RE.search(text)
+            if match is None:
+                continue
+            state = 'find_scores'
+            name = match.groups()[0]
+        elif state == 'find_scores':
+            st_scores = match_plot_scores(text)
+            if st_scores is None:
+                continue
+            scores[name] = st_scores
+            state = 'before'
+    if state == 'find_scores':
+        raise MCPError(f'Missing scores for {name}')
+    return scores
+
+
+def execute_nb_fname(nb_fname):
+    wd = op.dirname(nb_fname)
+    storage_path = op.join(wd, '.ok_storage')
     if op.exists(storage_path):
         os.unlink(storage_path)
+    nb = jupytext.read(nb_fname)
     ep = ExecutePreprocessor()
-    ep.preprocess(nb, {'metadata': {'path': path}})
+    ep.preprocess(nb, {'metadata': {'path': wd}})
     return nb
+
+
+def component_path(config, component):
+    return op.join(config['base_path'], 'components', component)

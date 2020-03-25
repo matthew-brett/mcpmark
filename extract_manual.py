@@ -73,7 +73,7 @@ def main():
     nb_path = op.join(config['base_path'], 'components', args.component)
     lexts = args.nb_lext if args.nb_lext else ['.rmd', '.ipynb']
     nb_fnames = get_notebooks(nb_path,
-                              recursive=True,
+                              recursive=False,
                               lexts=lexts,
                               first_only=True)
     if len(nb_fnames) == 0:
