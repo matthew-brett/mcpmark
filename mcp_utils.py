@@ -180,7 +180,7 @@ def _check_total(line, name, marks, required_fields, msg_lines):
 
 
 
-NAME_RE = re.compile(r'^##\s+(.*)\s*$')
+NAME_RE = re.compile(r'^##\s+([a-zA-Z0-9_]+)\s*$')
 SCORE_RE = re.compile(r'\s*MCPScore\s*:\s*([0-9.]+)\s*$')
 QUESTION_RE = re.compile(r'^(.*)_report\.md')
 

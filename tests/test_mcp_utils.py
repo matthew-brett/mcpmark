@@ -60,7 +60,7 @@ Several lines
 
     MCPScore : .4
 
-## another person
+## another_person
 
 More text.
 
@@ -68,41 +68,41 @@ More lines.
 
  MCPScore   : 1
 """)
-    assert res == {'someone': 0.4, 'another person': 1}
+    assert res == {'someone': 0.4, 'another_person': 1}
     res = get_manual_scores("""
 
-## An other person
+## An_other_person
 
 MCPScore : 0.05
 
-## Who now?
+## Who_now3
 
 MCPScore : 1
 
 """)
     # Missing final score.
-    assert res == {'An other person': 0.05, 'Who now?': 1.0}
+    assert res == {'An_other_person': 0.05, 'Who_now3': 1.0}
     with pytest.raises(MCPError):
         res = get_manual_scores("""
 
-## An other person
+## An_other_person
 
 MCPScore : 0.05
 
-## Who now?
+## Who_now3
 
 """)
     # Two scores.
     with pytest.raises(MCPError):
         res = get_manual_scores("""
 
-## An other person
+## An_other_person
 
 MCPScore : 0.05
 
 MCPScore : 1
 
-## Who now?
+## Who_now3
 
 MCPScore : 1
 
@@ -111,11 +111,24 @@ MCPScore : 1
     with pytest.raises(MCPError):
         res = get_manual_scores("""
 
-## An other person
+## An_other_person
 
 MCPscore : 0.05
 
-## Who now?
+## Who_now3
+
+MCPScore : 1
+
+""")
+    # Name doesn't match
+    with pytest.raises(MCPError):
+        res = get_manual_scores("""
+
+## An_other person
+
+MCPScore : 0.05
+
+## Who_now3
 
 MCPScore : 1
 
