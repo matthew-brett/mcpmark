@@ -103,7 +103,9 @@ def grade_component(config, component):
         manual_mark = sum(m[student_id] for m in manuals)
         if student_id in autos:
             # check_parts makes sure both exist.
-            nb_mark = autos[student_id] + plots[student_id]
+            nb_mark = autos[student_id]
+            if plots:
+                nb_mark += plots[student_id]
         else:  # check_parts checks this.
             nb_mark = broken[student_id]
         grades[student_id] = manual_mark + nb_mark
