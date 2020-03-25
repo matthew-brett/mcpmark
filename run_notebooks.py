@@ -15,7 +15,7 @@ from mcp_utils import get_notebooks
 START_FNAME = '.execute_start_at'
 
 
-def execute_nbs(fnames, start_fname):
+def execute_nbs(fnames, start_fname, timeout=120):
     start_at = None
     if op.isfile(start_fname):
         with open(start_fname, 'rt') as fobj:
@@ -27,7 +27,7 @@ def execute_nbs(fnames, start_fname):
         nb = jupytext.read(nb_fname)
         print(f'Executing {nb_fname}')
         try:
-            executenb(nb, op.dirname(nb_fname))
+            executenb(nb, op.dirname(nb_fname), timeout=timeout)
         except CellExecutionError as e:
             with open(start_fname, 'wt') as fobj:
                 fobj.write(nb_fname)
