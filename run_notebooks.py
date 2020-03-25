@@ -15,7 +15,7 @@ from mcp_utils import get_notebooks
 START_FNAME = '.execute_start_at'
 
 
-def execute_nbs(fnames, start_fname, timeout=120):
+def execute_nbs(fnames, start_fname, timeout=240):
     start_at = None
     if op.isfile(start_fname):
         with open(start_fname, 'rt') as fobj:
