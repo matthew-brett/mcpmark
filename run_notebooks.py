@@ -2,6 +2,7 @@
 """ Run notebooks in directory, restarting at last failure.
 """
 
+import os
 import os.path as op
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
@@ -32,6 +33,7 @@ def execute_nbs(fnames, start_fname, timeout=240):
             with open(start_fname, 'wt') as fobj:
                 fobj.write(nb_fname)
             raise e.__class__(str(e) + f'\nError in {nb_fname}')
+    os.unlink(start_fname)
 
 
 def get_parser():
