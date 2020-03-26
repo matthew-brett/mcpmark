@@ -329,5 +329,3 @@ def dirs2logins(config):
         if cv_name not in config['known_missing']:
             d2L[cv_name] = row[stid_col]
     return d2L
-
-
