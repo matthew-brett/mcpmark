@@ -7,18 +7,8 @@ import os.path as op
 import shutil
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from mcp_utils import read_config, get_minimal_df, full2cv_lookup
-
-
-def dirs2logins(config):
-    df = get_minimal_df(config)
-    stid_col = config['student_id_col']
-    d2L = {}
-    for i_val, row in df.iterrows():
-        cv_name = full2cv_lookup(row['Student'], config).capitalize()
-        if cv_name not in config['known_missing']:
-            d2L[cv_name] = row[stid_col]
-    return d2L
+from mcp_utils import (read_config, get_minimal_df, full2cv_lookup,
+                       dirs2logins)
 
 
 def get_parser():
