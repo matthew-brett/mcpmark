@@ -21,21 +21,19 @@ def get_parser():
 
 
 def process_components(config):
-    seriess = {}
+    series = {}
     stid_col = config['student_id_col']
     components = config['components']
-    max_overall = sum([components[c]['scaled_to'] for c in components])
+    scaled_max = sum([components[c]['scaled_to'] for c in components])
     for name, info in components.items():
         csv_pth = op.join(component_path(config, name),
                           'marking',
                           'component.csv')
         df = pd.read_csv(csv_pth).set_index(stid_col)
-        scf = info['scaled_to'] / info['actual_max']
-        series = df['Mark'].astype(float) * scf
-        seriess[name] = series
-    final = pd.DataFrame(seriess)
+        series[name] = df['Mark'] * info['scaled_to'] / info['actual_max']
+    final = pd.DataFrame(series)
     total = final.sum(axis=1)
-    final['Percent'] = total / max_overall * 100
+    final['Percent'] = total / scaled_max * 100
     final['Total'] = total
     return final
 
