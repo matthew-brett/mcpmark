@@ -10,7 +10,8 @@ import numpy as np
 import pandas as pd
 
 spouses_dir = 'spouses_graded'
-ta_dirs = os.listdir(spouses_dir)
+ta_dirs = [p for p in os.listdir(spouses_dir)
+           if op.isdir(op.join(spouses_dir, p))]
 
 # Rewrite totals
 for ta in ta_dirs:
