@@ -7,7 +7,7 @@ import os.path as op
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 import shutil
 
-from mcp_utils import read_config
+from mcp_utils import read_config, component_path
 
 
 def good_path(path):
@@ -54,11 +54,9 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
     config = read_config(args.config_path)
-    base_path = config['base_path']
     if not args.component in config['components']:
         raise RuntimeError(f'"{args.component}" not in config')
-    component_path = op.join(base_path, 'components', args.component)
-    cp_model(args.model_path, component_path)
+    cp_model(args.model_path, component_path(config, args.component))
 
 
 if __name__ == '__main__':
