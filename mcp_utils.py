@@ -316,8 +316,11 @@ def execute_nb_fname(nb_fname):
     return nb
 
 
-def component_path(config, component):
-    return op.join(config['base_path'], 'components', component)
+def component_path(config, component=None):
+    pth = op.join(config['base_path'], config['components_path'])
+    if component is not None:
+        pth = op.join(pth, component)
+    return pth
 
 
 def dirs2logins(config):

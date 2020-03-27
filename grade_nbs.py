@@ -7,7 +7,8 @@ import os.path as op
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from grade_oknb import grade_nb_fname
-from mcp_utils import (read_config, get_notebooks, loginfn2login)
+from mcp_utils import (read_config, get_notebooks, loginfn2login,
+                       component_path)
 
 
 def get_parser():
@@ -60,7 +61,7 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
     config = read_config(args.config_path)
-    nb_path = op.join(config['base_path'], 'components', args.component)
+    nb_path = component_path(config, args.component)
     lexts = args.nb_lext if args.nb_lext else ['.rmd', '.ipynb']
     nb_fnames = get_notebooks(nb_path, lexts, first_only=True)
     if len(nb_fnames) == 0:

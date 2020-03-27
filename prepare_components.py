@@ -14,7 +14,8 @@ import shutil
 
 import jupytext
 
-from mcp_utils import (read_config, get_minimal_df, get_notebooks)
+from mcp_utils import (read_config, get_minimal_df, get_notebooks,
+                       component_path)
 
 
 def get_component_nbs(in_dir, component_tests):
@@ -79,8 +80,7 @@ def main():
     stid_col = config['student_id_col']
     component_tests = get_component_tests(config)
     component_names = list(component_tests)
-    base_path = op.dirname(args.config_path)
-    component_base = op.join(base_path, 'components')
+    component_base = component_path(config)
     create_dirs(component_base, component_names)
     sub_path = config['submissions_path']
     for login_id in expected_student_dirs(config):
