@@ -73,7 +73,7 @@ def main():
         raise RuntimeError(f'No files with glob "{zip_glob}"')
     out_path = config['submissions_path']
     df = get_minimal_df(config)
-    check_unpack(zip_fnames, out_path, df, clobber=args.clobber)
+    check_unpack(config, zip_fnames, out_path, df, clobber=args.clobber)
 
 
 if __name__ == '__main__':
