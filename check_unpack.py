@@ -41,7 +41,7 @@ def check_unpack1(config, fname, out_path, df, clobber, known):
     for root, dirs, files in os.walk(this_out):
         ok_dirs = []
         for d in dirs:
-            if not (fnmatch(d, g) for g in BAD_GLOBS):
+            if not any(fnmatch(d, g) for g in BAD_GLOBS):
                 ok_dirs.append(d)
             else:
                 shutil.rmtree(op.join(root, d))
