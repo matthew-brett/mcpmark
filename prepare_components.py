@@ -15,7 +15,7 @@ import shutil
 import jupytext
 
 from mcp_utils import (read_config, get_minimal_df, get_notebooks,
-                       component_path)
+                       component_path, MCPError)
 
 
 def get_component_nbs(in_dir, component_tests):
@@ -27,7 +27,10 @@ def get_component_nbs(in_dir, component_tests):
             if component_test(nb, nb_fname):
                 assert component not in component_nbs
                 component_nbs[component] = (nb_fname, nb)
-    assert sorted(component_nbs) == sorted(component_tests)
+    missing = set(component_tests).difference(component_nbs)
+    if missing:
+        missing = '\n'.join(sorted(missing))
+        raise MCPError(f'Missing notebooks in {in_dir}:\n{missing}')
     return component_nbs
 
 
