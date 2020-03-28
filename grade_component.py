@@ -20,7 +20,7 @@ from glob import glob
 import pandas as pd
 
 from mcp_utils import (read_config, read_manual, get_notebooks, nbs2markups,
-                       get_plot_scores, component_path)
+                       get_plot_scores, component_path, MCPError)
 
 
 def read_grades(fname, stid_col, total_col):
@@ -51,7 +51,10 @@ def read_manuals(config, component):
     expected_manuals = [op.join(mark_path, f'{q}_report.md')
                         for q in manual_qs]
     actual_manuals = glob(op.join(mark_path, '*_report.md'))
-    assert set(expected_manuals) == set(actual_manuals)
+    missing = set(expected_manuals).difference(actual_manuals)
+    if missing:
+        smissing = ', '.join(sorted(missing))
+        raise MCPError(f'Expected manual grading {smissing}')
     return [read_manual(fn)[1] for fn in expected_manuals]
 
 
