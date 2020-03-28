@@ -43,7 +43,8 @@ def main():
     args = parser.parse_args()
     config = read_config(args.config_path)
     all_answers = process_components(config)
-    all_answers.to_csv(op.join(config['base_path'], 'final.csv'))
+    out_csv = op.join(config['base_path'], config['mark_fname'])
+    all_answers.to_csv(out_csv)
     print(all_answers.describe())
 
 
