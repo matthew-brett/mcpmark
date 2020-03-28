@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import nbformat.v4 as nbf
 from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert.preprocessors import CellExecutionError
 import jupytext
 
 from gradools import canvastools as ct
@@ -306,14 +307,19 @@ def get_plot_scores(nb_fname):
     return scores
 
 
-def execute_nb_fname(nb_fname):
+def execute_nb_fname(nb_fname, timeout=240, verbose=True):
     wd = op.dirname(nb_fname)
     storage_path = op.join(wd, '.ok_storage')
     if op.exists(storage_path):
         os.unlink(storage_path)
     nb = jupytext.read(nb_fname)
-    ep = ExecutePreprocessor()
-    ep.preprocess(nb, {'metadata': {'path': wd}})
+    ep = ExecutePreprocessor(timeout=timeout)
+    if verbose:
+        print(f'Executing {nb_fname}')
+    try:
+        ep.preprocess(nb, {'metadata': {'path': wd}})
+    except CellExecutionError as e:
+        raise e.__class__(str(e) + f'\nError in {nb_fname}')
     return nb
 
 

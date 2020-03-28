@@ -9,7 +9,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 import nbformat.v4 as nbf
 
 from mcp_utils import (read_config, get_notebooks, loginfn2login,
-                       get_plot_nb, execute_nb_fname)
+                       get_plot_nb, execute_nb_fname, component_path)
 
 
 def extract_plot_nbs(nb_fnames):
@@ -55,7 +55,7 @@ def main():
     args = parser.parse_args()
     config = read_config(args.config_path)
     plot_qs = config['components'][args.component]['plot_qs']
-    nb_path = op.join(config['base_path'], 'components', args.component)
+    nb_path = component_path(config, args.component)
     lexts = args.nb_lext if args.nb_lext else ['.rmd', '.ipynb']
     nb_fnames = get_notebooks(nb_path,
                               recursive=False,

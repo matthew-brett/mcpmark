@@ -7,11 +7,8 @@ import os.path as op
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from nbconvert.preprocessors import CellExecutionError
-from nbconvert.preprocessors.execute import executenb
 
-import jupytext
-
-from mcp_utils import get_notebooks
+from mcp_utils import get_notebooks, execute_nb_fname
 
 START_FNAME = '.execute_start_at'
 
@@ -24,15 +21,12 @@ def execute_nbs(fnames, start_fname, timeout=240):
     for nb_fname in sorted(fnames):
         if start_at and nb_fname < start_at:
             continue
-        start_at = None
-        nb = jupytext.read(nb_fname)
-        print(f'Executing {nb_fname}')
         try:
-            executenb(nb, op.dirname(nb_fname), timeout=timeout)
+            execute_nb_fname(nb_fname, timeout, verbose=True)
         except CellExecutionError as e:
             with open(start_fname, 'wt') as fobj:
                 fobj.write(nb_fname)
-            raise e.__class__(str(e) + f'\nError in {nb_fname}')
+            raise
     os.unlink(start_fname)
 
 
