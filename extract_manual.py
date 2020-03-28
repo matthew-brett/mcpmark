@@ -8,8 +8,8 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 import jupytext
 
-from mcp_utils import (read_config, get_notebooks, loginfn2login, MCPError)
-
+from mcp_utils import (read_config, get_notebooks, loginfn2login, MCPError,
+                       component_path)
 
 
 def get_parser():
@@ -70,7 +70,7 @@ def main():
     args = parser.parse_args()
     config = read_config(args.config_path)
     ex_labels = config['components'][args.component]['manual_qs']
-    nb_path = op.join(config['base_path'], 'components', args.component)
+    nb_path = component_path(config, args.component)
     lexts = args.nb_lext if args.nb_lext else ['.rmd', '.ipynb']
     nb_fnames = get_notebooks(nb_path,
                               recursive=False,
