@@ -27,7 +27,8 @@ def execute_nbs(fnames, start_fname, timeout=240):
             with open(start_fname, 'wt') as fobj:
                 fobj.write(nb_fname)
             raise
-    os.unlink(start_fname)
+    if start_at is not None:
+        os.unlink(start_fname)
 
 
 def get_parser():
@@ -49,7 +50,7 @@ def main():
     if len(nb_fnames) == 0:
         raise RuntimeError(f'No notebooks found in path "{args.nb_path}" '
                            f'with extensions {lexts}')
-    start_fname = op.join(op.dirname(nb_fnames[0]), START_FNAME)
+    start_fname = op.join(args.nb_path, START_FNAME)
     execute_nbs(nb_fnames, start_fname)
 
 
