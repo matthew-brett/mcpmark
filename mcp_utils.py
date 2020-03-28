@@ -4,6 +4,7 @@
 import os
 import os.path as op
 import re
+import shutil
 
 import yaml
 import numpy as np
@@ -332,3 +333,30 @@ def dirs2logins(config):
         if cv_name not in config['known_missing']:
             d2L[cv_name] = row[stid_col]
     return d2L
+
+
+def good_path(path):
+    froot, ext = op.splitext(path)
+    if ext in ('.md', '.ipynb', '.Rmd'):
+        return False
+    if path.startswith('.'):
+        return False
+    return True
+
+
+def cp_with_dir(in_fname, out_fname):
+    out_dir = op.dirname(out_fname)
+    if not op.isdir(out_dir):
+        os.makedirs(out_dir)
+    shutil.copy(in_fname, out_fname)
+
+
+def cp_model(model_path, component_path):
+    for root, dirs, files in os.walk(model_path):
+        dirs[:] = [d for d in dirs if good_path(d)]
+        for fn in files:
+            if not good_path(fn):
+                continue
+            full_path = op.join(root, fn)
+            rel_path = op.relpath(full_path, model_path)
+            cp_with_dir(full_path, op.join(component_path, rel_path))
