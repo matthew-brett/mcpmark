@@ -1,0 +1,27 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "gradools"
+author = "Matthew Brett"
+author-email = "matthew.brett@gmail.com"
+home-page="https://github.com/matthew-brett/gradools"
+classifiers = ["License :: OSI Approved :: BSD License",
+               "Programming Language :: Python :: 3"]
+description-file="README.md"
+# Check against requirements.txt
+requires = [
+    'pytoml',
+    'pandas',
+    'regex'
+]
+requires-python=">=3.6"
+
+[tool.flit.scripts]
+gdo-check = "gradools.check:main"
+gdo-year = "gradools.mconfig:print_year"
+gdo-mkstable = "gradools.mkstable:main"
+gdo-stinit = "gradools.stinit:main"
+gdo-mkfb = "gradools.mkfb:main"
+gdo-report = "gradools.report:main"
