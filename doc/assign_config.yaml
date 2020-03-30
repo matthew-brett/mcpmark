@@ -2,7 +2,7 @@
 # An "assignment" is one submitted piece of work.
 # It might have multiple "components".  These are typically notebooks.
 # All relative paths here are relative to this config file.
-# All path keys should end with "_path" (see mcp_utils.py).
+# All path keys should end with "_path" (see mcputils.py).
 
 # Path containing student submissions as zip files.
 assignment_zip_path: /some/path/submissions_second

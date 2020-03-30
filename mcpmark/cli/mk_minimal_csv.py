@@ -5,7 +5,7 @@ import os
 import os.path as op
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from ..mcp_utils import read_config, get_minimal_df
+from ..mcputils import read_config, get_minimal_df
 
 
 def get_parser():
