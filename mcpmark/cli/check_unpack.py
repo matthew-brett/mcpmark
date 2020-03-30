@@ -12,7 +12,7 @@ from glob import glob
 
 from gradools import canvastools as ct
 
-from mcp_utils import read_config, get_minimal_df
+from ..mcputils import read_config, get_minimal_df
 
 BAD_GLOBS = ['__pycache__', '__MACOSX', '.*']
 

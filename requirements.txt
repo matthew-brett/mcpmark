@@ -1,3 +1,2 @@
-pytoml
-pandas
-regex
+gradools
+rnbgrader

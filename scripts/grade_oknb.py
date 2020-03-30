@@ -1,1 +1,0 @@
-../../../../cfd2019/scripts/grade_oknb.py

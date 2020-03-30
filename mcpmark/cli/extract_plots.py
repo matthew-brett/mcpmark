@@ -8,7 +8,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 import nbformat.v4 as nbf
 
-from mcp_utils import (read_config, get_notebooks, loginfn2login,
+from ..mcputils import (read_config, get_notebooks, loginfn2login,
                        get_plot_nb, execute_nb_fname, component_path)
 
 

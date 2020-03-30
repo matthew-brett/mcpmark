@@ -7,7 +7,7 @@ import os.path as op
 import shutil
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from mcp_utils import (read_config, get_minimal_df, full2cv_lookup,
+from ..mcputils import (read_config, get_minimal_df, full2cv_lookup,
                        dirs2logins)
 
 

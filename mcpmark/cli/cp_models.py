@@ -1,11 +1,21 @@
 #!/usr/bin/env python
-""" Build minimal CSV file given input Canvas export and config.
+""" Copy model answer files from model paths to component paths.
 """
+
 import os
 import os.path as op
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
-from mcp_utils import read_config, get_minimal_df
+from ..mcputils import read_config, cp_model, component_path
+
+
+def cp_models(config):
+    models_base = op.join(config['base_path'], 'models')
+    if not op.isdir(models_base):
+        raise RuntimeError('No directory ' + models_base)
+    for component in config['components']:
+        model_path = op.join(models_base, component)
+        cp_model(model_path, component_path(config, component))
 
 
 def get_parser():
@@ -14,19 +24,14 @@ def get_parser():
     parser.add_argument('--config-path',
                         default=op.join(os.getcwd(), 'assign_config.yaml'),
                         help='Path to config file')
-    parser.add_argument('--out-path',
-                        help='Path for output csv')
     return parser
 
 
 def main():
     parser = get_parser()
     args = parser.parse_args()
-    if args.out_path is None:
-        args.out_path = op.join(op.dirname(args.config_path), 'assign_df.csv')
     config = read_config(args.config_path)
-    print('Writing', args.out_path)
-    get_minimal_df(config).to_csv(args.out_path)
+    cp_models(config)
 
 
 if __name__ == '__main__':

@@ -7,7 +7,7 @@ import os.path as op
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from grade_oknb import grade_nb_fname
-from mcp_utils import (read_config, get_notebooks, loginfn2login,
+from ..mcputils import (read_config, get_notebooks, loginfn2login,
                        component_path)
 
 

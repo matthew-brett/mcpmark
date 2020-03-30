@@ -8,7 +8,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 import jupytext
 
-from mcp_utils import (read_config, get_notebooks, loginfn2login, MCPError,
+from ..mcputils import (read_config, get_notebooks, loginfn2login, MCPError,
                        component_path)
 
 

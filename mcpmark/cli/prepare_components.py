@@ -14,7 +14,7 @@ import shutil
 
 import jupytext
 
-from mcp_utils import (read_config, get_minimal_df, get_notebooks,
+from ..mcputils import (read_config, get_minimal_df, get_notebooks,
                        component_path, MCPError)
 
 

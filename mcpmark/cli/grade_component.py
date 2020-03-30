@@ -19,7 +19,7 @@ from glob import glob
 
 import pandas as pd
 
-from mcp_utils import (read_config, read_manual, get_notebooks, nbs2markups,
+from ..mcputils import (read_config, read_manual, get_notebooks, nbs2markups,
                        get_plot_scores, component_path, MCPError)
 
 

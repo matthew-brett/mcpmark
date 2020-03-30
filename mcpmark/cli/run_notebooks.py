@@ -8,7 +8,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from nbconvert.preprocessors import CellExecutionError
 
-from mcp_utils import get_notebooks, execute_nb_fname
+from ..mcputils import get_notebooks, execute_nb_fname
 
 START_FNAME = '.execute_start_at'
 

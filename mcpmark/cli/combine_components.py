@@ -8,7 +8,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 import pandas as pd
 
-from mcp_utils import (read_config, component_path)
+from ..mcputils import (read_config, component_path)
 
 
 def get_parser():

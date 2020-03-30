@@ -3,18 +3,17 @@ requires = ["flit"]
 build-backend = "flit.buildapi"
 
 [tool.flit.metadata]
-module = "gradools"
+module = "mcpmark"
 author = "Matthew Brett"
 author-email = "matthew.brett@gmail.com"
-home-page="https://github.com/matthew-brett/gradools"
+home-page="https://github.com/matthew-brett/mcpmark"
 classifiers = ["License :: OSI Approved :: BSD License",
                "Programming Language :: Python :: 3"]
 description-file="README.md"
 # Check against requirements.txt
 requires = [
-    'pytoml',
-    'pandas',
-    'regex'
+    'gradools',
+    'rnbgrader',
 ]
 requires-python=">=3.6"
 
@@ -25,3 +24,20 @@ gdo-mkstable = "gradools.mkstable:main"
 gdo-stinit = "gradools.stinit:main"
 gdo-mkfb = "gradools.mkfb:main"
 gdo-report = "gradools.report:main"
+mcp-check-unpack = "check_unpack:main"
+mcp-combin-components = "combine_components:main"
+mcp-cp-models = "cp_models:main"
+mcp-echo-config = "echo_config:main"
+mcp-extract-manual = "extract_manual:main"
+mcp-extract-plots = "extract_plots:main"
+mcp-find-duplicates = "find_duplicates:main"
+mcp-grade-component = "grade_component:main"
+mcp-grade-nbs = "grade_nbs:main"
+mcp-grade-oknb = "grade_oknb:main"
+mcp-merge-marks = "merge_marks:main"
+mcp-mk-minimal-csv = "mk_minimal_csv:main"
+mcp-manual-scores = "parse_manual_scores:main"
+mcp-parts2component = "parts2component:main"
+mcp-prepare-components = "prepare_components:main"
+mcp-rename-named-dirs = "rename_named_dirs:main"
+mcp-run-notebooks = "run_notebooks:main"
