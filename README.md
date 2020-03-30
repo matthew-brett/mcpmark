@@ -14,9 +14,11 @@ in a utility library.
 
 * Download submissions to some directory
 * Download Canvas marks CSV  file to some directory, maybe this one.
-* Edit `assign_config.yaml` (see `docs`)
-* `mcp-check-unpack`
-* `mcp-prepare-components`
+* Edit `assign_config.yaml` --- see `docs` for an example.
+* Develop script to identify notebooks by their content - see `doc` for an
+  example, and `mcpmark/cli/prepare_components.py` for code using this script.
+* `mcp-check-unpack`.
+* `mcp-prepare-components`.
 * Develop tests for each component in `model` directory.
 * `mcp-cp-models`
 * Per notebook / component:
@@ -31,7 +33,7 @@ in a utility library.
     * Check notebook execution with `mcp-run-notebooks`
     * Move any broken notebooks to `broken` directory, and mark in
       `broken.csv` file.
-    * `ncp-grade-nbs.py <component_name>`.
+    * `mcp-grade-nbs.py <component_name>`.
     * Review `<component>/marking/autograde.md`.
     * Update any manual fixes with `#M: ` notation to add / subtract marks.
     * Final run of `mcp-grade-nbs`
