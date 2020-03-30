@@ -14,7 +14,7 @@ description-file="README.md"
 requires = [
     'gradools',
     'rnbgrader',
-    'yaml',
+    'pyyaml',
 ]
 requires-python=">=3.6"
 
