@@ -1,14 +1,10 @@
-""" Tests for mcp_utils module
+""" Tests for mcputils module
 """
 
 import os.path as op
-import sys
 
-HERE = op.realpath(op.dirname(__file__))
-sys.path.append(op.join(HERE, '..'))
-
-from mcp_utils import (get_notebooks, get_manual_scores, MCPError,
-                       match_plot_scores)
+from mcpmark import (get_notebooks, get_manual_scores, MCPError,
+                     match_plot_scores)
 
 import pytest
 

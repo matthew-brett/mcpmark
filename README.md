@@ -1,6 +1,7 @@
 # Multiple component marking
 
-Some tools I use when marking homeworks with multiple Jupyter notebook components.
+Some tools I use when marking homework with multiple Jupyter notebook
+components.
 
 The notebooks may have questions for manual marking, and plots for marking.
 
@@ -8,6 +9,33 @@ They assume some Canvas](https://www.instructure.com/canvas) conventions of nami
 
 The tools consist primarily command line utilities, with some supporting code
 in a utility library.
+
+## A typical marking run
+
+* Download submissions to some directory
+* Download Canvas marks CSV  file to some directory, maybe this one.
+* Edit `assign_config.yaml` (see `docs`)
+* `mcp-check-unpack`
+* `mcp-prepare-components`
+* Develop tests for each component in `model` directory.
+* `mcp-cp-models`
+* Per notebook / component:
+    * Develop tests in `model` directory.
+    * Copy tests etc into components directory with `mcp-cp-models`
+    * `mcp-find-duplicates` to analyze duplicates, write summary into some
+      file, say `report.md`.
+    * `mcp-extract-manual`. Edit notebooks where manual component not found.
+    * Mark generated manual file in `<component>/marking/*_report.md`.
+    * Check manual scoring with something like `mcp-parse-manual-scores
+      components/lymphoma/dunleavy_plausible_report.md`
+    * Check notebook execution with `mcp-run-notebooks`
+    * Move any broken notebooks to `broken` directory, and mark in
+      `broken.csv` file.
+    * `ncp-grade-nbs.py <component_name>`.
+    * Review `<component>/marking/autograde.md`.
+    * Update any manual fixes with `#M: ` notation to add / subtract marks.
+    * Final run of `mcp-grade-nbs`
+    * `mcp-grade-component`.
 
 ## Utilities
 
