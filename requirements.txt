@@ -1,4 +1,2 @@
 gradools
-rnbgrader
-nbformat
-pyyaml
+rnbgrader>=0.2
