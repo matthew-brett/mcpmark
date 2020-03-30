@@ -8,11 +8,9 @@ env:
     global:
         # tornado is a dependency of jupyter_client - see:
         # https://github.com/jupyter/jupyter_client/issues/321
-        - DEPENDS="pandas pytoml"
-        - PKG_NAME=gradools
+        - DEPENDS="gradools rnbgrader"
+        - PKG_NAME=mcpmark
         - INSTALL_TYPE="pip"
-        # URL for extra wheel repo
-        - EXTRA_WHEELS="https://5cf40426d9f06eb7461d-6fe47d9331aba7cd62fc36c7196769e4.ssl.cf2.rackcdn.com"
 
 matrix:
   include:
