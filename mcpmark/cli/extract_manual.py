@@ -12,20 +12,6 @@ from ..mcputils import (read_config, get_notebooks, loginfn2login, MCPError,
                        component_path)
 
 
-def get_parser():
-    parser = ArgumentParser(description=__doc__,  # Usage from docstring
-                            formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument('component',
-                        help='Component name for which to extract')
-    parser.add_argument('--config-path',
-                        default=op.join(os.getcwd(), 'assign_config.yaml'),
-                        help='Path to config file')
-    parser.add_argument('--nb-lext', action='append',
-                        help='Ordered list of notebook extensions '
-                        'to search for (lower case, including . prefix)')
-    return parser
-
-
 def extract_from_nb(nb_fname, labels):
     nb = jupytext.read(nb_fname)
     ex_md_text = {}
@@ -63,6 +49,20 @@ def write_answers(all_answers, out_path):
         out_fname = op.join(out_path, f'{label}_report.md')
         with open(out_fname, 'wt') as fobj:
             fobj.write('\n'.join(lines))
+
+
+def get_parser():
+    parser = ArgumentParser(description=__doc__,  # Usage from docstring
+                            formatter_class=RawDescriptionHelpFormatter)
+    parser.add_argument('component',
+                        help='Component name from which to extract')
+    parser.add_argument('--config-path',
+                        default=op.join(os.getcwd(), 'assign_config.yaml'),
+                        help='Path to config file')
+    parser.add_argument('--nb-lext', action='append',
+                        help='Ordered list of notebook extensions '
+                        'to search for (lower case, including . prefix)')
+    return parser
 
 
 def main():
