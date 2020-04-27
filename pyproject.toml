@@ -19,6 +19,7 @@ requires-python=">=3.6"
 
 [tool.flit.scripts]
 mcp-check-unpack = "mcpmark.cli.check_unpack:main"
+mcp-check-one = "mcpmark.cli.check_one:main"
 mcp-combine-components = "mcpmark.cli.combine_components:main"
 mcp-cp-models = "mcpmark.cli.cp_models:main"
 mcp-echo-config = "mcpmark.cli.echo_config:main"
