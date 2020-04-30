@@ -25,7 +25,10 @@ def get_component_nbs(in_dir, component_tests):
         nb = jupytext.read(nb_fname)
         for component, component_test in component_tests.items():
             if component_test(nb, nb_fname):
-                assert component not in component_nbs
+                if component in component_nbs:
+                    prev_nb = component_nbs[component][0]
+                    raise MCPError(
+                        f'Found second nb "{nb_fname}"; first was "{prev_nb}"')
                 component_nbs[component] = (nb_fname, nb)
     missing = set(component_tests).difference(component_nbs)
     if missing:

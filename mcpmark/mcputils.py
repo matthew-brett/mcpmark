@@ -33,14 +33,29 @@ def read_canvas(canvas_fname):
 
 
 def read_config(config_fname):
+    """ Read, process config file `config_fname`
+
+    Parameters
+    ----------
+    config_fname : str
+        Path for configuration file.
+
+    Returns
+    -------
+    config : dict
+        Configuration.
+    """
     with open(config_fname, 'rt') as fobj:
         res = yaml.load(fobj)
     config_path = op.abspath(op.dirname(config_fname))
     for key, value in res.items():
         if not key.endswith('_path'):
             continue
+        # Allow home directory expansion.
+        value = op.expanduser(value)
         if not op.isabs(value):
-            res[key] = op.join(config_path, value)
+            value = op.join(config_path, value)
+        res[key] = value
     # Directory containing config file.
     res['base_path'] = op.dirname(config_fname)
     # Defaults

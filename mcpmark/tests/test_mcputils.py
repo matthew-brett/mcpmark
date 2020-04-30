@@ -8,6 +8,8 @@ from mcpmark import (get_notebooks, get_manual_scores, MCPError,
 
 import pytest
 
+DATA_DIR = op.join(op.dirname(__file__), 'data', 'assign_config.yaml')
+
 
 def touch(fname):
     with open(fname, 'wt') as fobj:

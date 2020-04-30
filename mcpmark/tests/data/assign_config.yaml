@@ -1,0 +1,57 @@
+# Configuration for an assignment.
+# An "assignment" is one submitted piece of work.
+# It might have multiple "components".  These are typically notebooks.
+# All relative paths here are relative to this config file.
+# All path keys should end with "_path" (see mcputils.py).
+
+# Path containing student submissions as zip files.
+assignment_zip_path: /some/path/submissions_second
+# Directory to which to unpack submission zip files.
+submissions_path: submissions_second
+# Grade export from Canvas (relative to this config file)
+canvas_export_path: "2020-03-20T0949_some_course_name.csv"
+# Student identifying column name
+student_id_col: "SIS Login ID"
+# Canvas assignment name
+assignment_name: "An assignment name"
+# Components directory relative to this file.
+components_path: components_second
+component_script_path: find_nb_components.py
+components:
+    lymphoma:
+      actual_max: 5
+      scaled_to: 10
+      manual_qs:
+        - dunleavy_plausible
+    pandering:
+      actual_max: 18
+      scaled_to: 15
+      manual_qs:
+        - basic_sorting_6
+        - births_6
+        - cfpb_complaints_4
+      plot_qs:
+        - complaints_pp
+        - complaints_pc
+        - complaints_pcp
+    religion:
+      actual_max: 7
+      scaled_to: 10
+      manual_qs:
+        - religion_plausible
+    titanic:
+      actual_max: 7
+      scaled_to: 20
+    spouses:
+      actual_max: 100
+      scaled_to: 25
+# For names that don't convert correctly from full to canvas output.
+# This happens when the person has two unhyphenated surnames.
+# This field only needed for renaming directories generated from previous code.
+cv_name_lookup:
+    Rodriguezrodriguezvalia: "Valia Rodriguez Rodriguez"
+# These students have no submission on Canvas for this assignment.
+known_missing:
+    - aaa123
+    - mbr110
+mark_fname: final_second.csv

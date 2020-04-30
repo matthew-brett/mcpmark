@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 
 import numpy as np
 
-from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert.preprocessors import ExecutePreprocessor, CellExecutionError
 import nbformat.v4 as nbf
 DEFAULT_NB_VERSION = 4
 
@@ -109,7 +109,10 @@ def grade_nb(nb, wd):
 def grade_nb_fname(nb_fname, wd=None):
     wd = op.dirname(nb_fname) if wd is None else wd
     nb = as_nb(nb_fname)
-    return grade_nb(nb, wd)
+    try:
+        return grade_nb(nb, wd)
+    except CellExecutionError as e:
+        raise e.__class__(str(e) + f'\nError in {nb_fname}')
 
 
 def print_grades(grades):

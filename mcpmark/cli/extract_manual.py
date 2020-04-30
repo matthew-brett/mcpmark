@@ -55,7 +55,7 @@ def get_parser():
     parser = ArgumentParser(description=__doc__,  # Usage from docstring
                             formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument('component',
-                        help='Component name from which to extract')
+                        help='Component name for which to extract')
     parser.add_argument('--config-path',
                         default=op.join(os.getcwd(), 'assign_config.yaml'),
                         help='Path to config file')
