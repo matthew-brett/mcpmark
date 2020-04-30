@@ -3,12 +3,16 @@
 
 import os.path as op
 
-from mcpmark import (get_notebooks, get_manual_scores, MCPError,
-                     match_plot_scores)
+import yaml
+
+from mcpmark.mcputils import (get_notebooks, get_manual_scores, MCPError,
+                              match_plot_scores, read_config,
+                              proc_config)
 
 import pytest
 
-DATA_DIR = op.join(op.dirname(__file__), 'data', 'assign_config.yaml')
+DATA_DIR = op.join(op.dirname(__file__), 'data')
+EG_CONFIG_FNAME = op.join(DATA_DIR, 'assign_config.yaml')
 
 
 def touch(fname):
@@ -150,3 +154,28 @@ def test_match_plot_scores():
     assert match_plot_scores(scores) == {
         'complaints_pp': 0.1,
         'complaints_pcp': 3}
+
+
+def test_read_config():
+    config = read_config(EG_CONFIG_FNAME)
+    assert config['assignment_name'] == 'An assignment name'
+    assert config['student_id_col'] == 'SIS Login ID'
+    # Check home directory gets expanded in paths.
+    assert config['assignment_zip_path'] == op.expanduser(
+        '~/Downloads/submissions_second')
+    with open(EG_CONFIG_FNAME, 'rt') as fobj:
+        raw_config = yaml.load(fobj)
+    c2 = proc_config(raw_config, EG_CONFIG_FNAME)
+    assert c2['assignment_zip_path'] == op.expanduser(
+        '~/Downloads/submissions_second')
+    raw_config['student_id_col'] = 'some other col'
+    canvas_csv = op.join('~', 'foo', 'bar.csv')
+    raw_config['canvas_export_path'] = canvas_csv
+    c3 = proc_config(raw_config, EG_CONFIG_FNAME)
+    assert c3['student_id_col'] == 'some other col'
+    # Check expansion of other fields.
+    assert c3['canvas_export_path'] == op.expanduser(canvas_csv)
+    # Check the default student id col.
+    del raw_config['student_id_col']
+    c4 = proc_config(raw_config, EG_CONFIG_FNAME)
+    assert c4['student_id_col'] == 'SIS Login ID'

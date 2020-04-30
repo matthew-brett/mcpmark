@@ -5,7 +5,7 @@
 # All path keys should end with "_path" (see mcputils.py).
 
 # Path containing student submissions as zip files.
-assignment_zip_path: /some/path/submissions_second
+assignment_zip_path: ~/Downloads/submissions_second
 # Directory to which to unpack submission zip files.
 submissions_path: submissions_second
 # Grade export from Canvas (relative to this config file)

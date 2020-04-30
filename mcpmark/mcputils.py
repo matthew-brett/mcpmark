@@ -47,8 +47,13 @@ def read_config(config_fname):
     """
     with open(config_fname, 'rt') as fobj:
         res = yaml.load(fobj)
+    return proc_config(res, config_fname)
+
+
+def proc_config(config, config_fname):
     config_path = op.abspath(op.dirname(config_fname))
-    for key, value in res.items():
+    res = config.copy()
+    for key, value in config.items():
         if not key.endswith('_path'):
             continue
         # Allow home directory expansion.
@@ -59,7 +64,7 @@ def read_config(config_fname):
     # Directory containing config file.
     res['base_path'] = op.dirname(config_fname)
     # Defaults
-    res['student_id_col'] = res.get('student_id_col', "SIS Login ID")
+    res['student_id_col'] = config.get('student_id_col', "SIS Login ID")
     return res
 
 
