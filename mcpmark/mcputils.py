@@ -144,7 +144,7 @@ def read_grade_output(grades_fname):
     with open(grades_fname, 'rt') as fobj:
         output = fobj.read()
 
-    parts = re.split('^(\w+_.*\.Rmd)$', output, flags=re.M)
+    parts = re.split(r'^(\w+_.*\.Rmd)$', output, flags=re.M)
     if parts[0].strip() == '':
         parts.pop(0)
 
@@ -154,7 +154,7 @@ def read_grade_output(grades_fname):
         result = parts[i + 1]
         assert fname.endswith('.Rmd')
         assert len(result)
-        total_match = re.search('^Total: (\d+)$', result, flags=re.M)
+        total_match = re.search(r'^Total: (\d+)$', result, flags=re.M)
         if total_match is None:
             print('No total for', fname, '- please check')
             continue
