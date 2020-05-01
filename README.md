@@ -26,13 +26,13 @@ in a utility library.
     * Copy tests etc into components directory with `mcp-cp-models`
     * `mcp-find-duplicates` to analyze duplicates, write summary into some
       file, say `report.md`.
+    * Check notebook execution with `mcp-run-notebooks <path_to_notebooks>`
+    * Move any broken notebooks to `broken` directory, and mark in
+      `broken.csv` file.
     * `mcp-extract-manual`. Edit notebooks where manual component not found.
     * Mark generated manual file in `<component>/marking/*_report.md`.
     * Check manual scoring with something like `mcp-parse-manual-scores
       components/lymphoma/dunleavy_plausible_report.md`
-    * Check notebook execution with `mcp-run-notebooks`
-    * Move any broken notebooks to `broken` directory, and mark in
-      `broken.csv` file.
     * `mcp-grade-nbs.py <component_name>`.
     * Review `<component>/marking/autograde.md`.
     * Update any manual fixes with `#M: ` notation to add / subtract marks.
