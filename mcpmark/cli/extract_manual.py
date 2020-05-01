@@ -18,7 +18,9 @@ def extract_from_nb(nb_fname, labels):
     for cell in nb.cells:
         problem_id = cell.get('metadata', {}).get('manual_problem_id')
         if problem_id in labels:
-            assert problem_id not in ex_md_text
+            if problem_id in ex_md_text:
+                raise MCPError(f'Found problem "{problem_id}" in {nb_fname} '
+                               'but already have an answer for that problem.')
             ex_md_text[problem_id] = cell['source']
     return ex_md_text
 
