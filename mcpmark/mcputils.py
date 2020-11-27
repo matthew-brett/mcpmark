@@ -46,7 +46,7 @@ def read_config(config_fname):
         Configuration.
     """
     with open(config_fname, 'rt') as fobj:
-        res = yaml.load(fobj)
+        res = yaml.load(fobj, Loader=yaml.SafeLoader)
     return proc_config(res, config_fname)
 
 
