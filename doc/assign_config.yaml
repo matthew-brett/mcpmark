@@ -8,6 +8,8 @@
 assignment_zip_path: /some/path/submissions_second
 # Directory to which to unpack submission zip files.
 submissions_path: submissions_second
+# If a single notebook, directory containing submissions
+# assignment_nb_path: submitted_notebooks
 # Grade export from Canvas (relative to this config file)
 canvas_export_path: "2020-03-20T0949_some_course_name.csv"
 # Student identifying column name

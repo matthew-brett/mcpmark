@@ -17,7 +17,9 @@ in a utility library.
 * Edit `assign_config.yaml` --- see `docs` for an example.
 * Develop script to identify notebooks by their content - see `doc` for an
   example, and `mcpmark/cli/prepare_components.py` for code using this script.
-* `mcp-check-unpack`.
+* If you have multiple components, each in a zip file, run:
+  `mcp-check-unpack`.  If you have one component, with corresponding single
+  notebook, run `mcp-check-one <component_name>`.
 * `mcp-prepare-components`.
 * Develop tests for each component in `model` directory.
 * `mcp-cp-models`
