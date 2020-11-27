@@ -19,10 +19,15 @@ in a utility library.
   example, and `mcpmark/cli/prepare_components.py` for code using this script.
 * If you have multiple components, each in a zip file, run:
   `mcp-check-unpack`.  If you have one component, with corresponding single
-  notebook, run `mcp-check-one <component_name>`.
+  notebook, run `mcp-check-one <component_name>`, and make sure you have set
+  the `assignment_nb_path` in `assign_config.yaml`.
 * `mcp-prepare-components`.
+* Develop tests for each component in `models` directory.  Check the marks
+  with `grade_oknb.py` in textbook `_scripts` directory.
+* `mcp-cp-models`
 * Per notebook / component:
     * Develop tests in `model/<component_name>/tests` directory.
+    * Test tests with `grad_oknb.py`.
     * Copy tests etc into components directory with `mcp-cp-models`
     * `mcp-find-duplicates` to analyze duplicates, write summary into some
       file, say `report.md`.
