@@ -5,16 +5,25 @@
 import sys
 from hashlib import sha1
 from collections import defaultdict
-
+from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 def shasum(fname):
     with open(fname, 'rb') as fobj:
         return sha1(fobj.read()).hexdigest()
 
+def get_parser():
+    parser = ArgumentParser(description=__doc__,  # Usage from docstring
+                            formatter_class=RawDescriptionHelpFormatter)
+    parser.add_argument('fnames', nargs='+',
+                        help='Notebook filenames')
+    return parser
+
 
 def main():
+    parser = get_parser()
+    args = parser.parse_args()
     duplicates = defaultdict(list)
-    for fn in sys.argv[1:]:
+    for fn in args.fnames:
         sha = shasum(fn)
         duplicates[sha].append(fn)
     clusters = [(k, v) for k, v in duplicates.items() if len(v) > 1]
