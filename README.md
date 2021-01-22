@@ -21,10 +21,8 @@ in a utility library.
   `mcp-check-unpack`.  If you have one component, with corresponding single
   notebook, run `mcp-check-one <component_name>`.
 * `mcp-prepare-components`.
-* Develop tests for each component in `model` directory.
-* `mcp-cp-models`
 * Per notebook / component:
-    * Develop tests in `model` directory.
+    * Develop tests in `model/<component_name>/tests` directory.
     * Copy tests etc into components directory with `mcp-cp-models`
     * `mcp-find-duplicates` to analyze duplicates, write summary into some
       file, say `report.md`.
@@ -35,11 +33,19 @@ in a utility library.
     * Mark generated manual file in `<component>/marking/*_report.md`.
     * Check manual scoring with something like `mcp-parse-manual-scores
       components/lymphoma/dunleavy_plausible_report.md`
-    * `mcp-grade-nbs.py <component_name>`.
+    * `mcp-extract-plots <component_name>` - edited `marked/plot_nbs.ipynb` to
+      add marks.
+    * Run auto-grading with `mcp-grade-nbs.py <component_name>`.
     * Review `<component>/marking/autograde.md`.
     * Update any manual fixes with `#M: ` notation to add / subtract marks.
     * Final run of `mcp-grade-nbs`
-    * `mcp-grade-component`.
+    * `mcp-grade-component <coponent_name>`.
+
+When done:
+
+* `mcp-combine-components` to generate the summary `.csv` file.  Do this even
+  when there is only one component.
+* `mcp-export-marks`
 
 ## Utilities
 
