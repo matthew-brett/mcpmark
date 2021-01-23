@@ -29,8 +29,8 @@ in a utility library.
     * Develop tests in `model/<component_name>/tests` directory.
     * Test tests with `grad_oknb.py`.
     * Copy tests etc into components directory with `mcp-cp-models`
-    * `mcp-find-duplicates` to analyze duplicates, write summary into some
-      file, say `report.md`.
+    * e.g. `mcp-find-duplicates components/my_component/*.Rmd` to analyze
+      duplicates, write summary into some file, say `report.md`.
     * Check notebook execution with `mcp-run-notebooks <path_to_notebooks>`
     * Move any broken notebooks to `broken` directory, and mark in
       `broken.csv` file.
@@ -43,6 +43,9 @@ in a utility library.
     * Run auto-grading with `mcp-grade-nbs.py <component_name>`.
     * Review `<component>/marking/autograde.md`.
     * Update any manual fixes with `#M: ` notation to add / subtract marks.
+      These are lines in code cells / chunks, of form `#M: <score_increment>`
+      -- e.g. `#M: -2.5`.  They reach the final score via
+      `mcp-grade-components`.
     * Final run of `mcp-grade-nbs`
     * `mcp-grade-component <coponent_name>`.
 
@@ -66,7 +69,6 @@ pip install mcpmark
 
 To install locally from the repository, you will need
 [flit](https://pypi.org/project/flit).
-
 
 ```
 flit install --user
