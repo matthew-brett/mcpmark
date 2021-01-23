@@ -112,7 +112,8 @@ def grade_nb_fname(nb_fname, wd=None):
     try:
         return grade_nb(nb, wd)
     except CellExecutionError as e:
-        raise e.__class__(str(e) + f'\nError in {nb_fname}')
+        raise e.__class__(f'{e.traceback}\nError in {nb_fname}',
+                          e.ename, e.evalue)
 
 
 def print_grades(grades):

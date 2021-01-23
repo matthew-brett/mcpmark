@@ -339,7 +339,8 @@ def execute_nb_fname(nb_fname, timeout=240, verbose=True):
     try:
         ep.preprocess(nb, {'metadata': {'path': wd}})
     except CellExecutionError as e:
-        raise e.__class__(str(e) + f'\nError in {nb_fname}')
+        raise e.__class__(f'{e.traceback}\nError in {nb_fname}',
+                          e.ename, e.evalue)
     return nb
 
 
