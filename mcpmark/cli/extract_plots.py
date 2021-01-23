@@ -9,7 +9,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 import nbformat.v4 as nbf
 
 from ..mcputils import (read_config, get_notebooks, loginfn2login,
-                       get_plot_nb, execute_nb_fname, component_path)
+                        get_plot_nb, execute_nb_fname, component_path)
 
 
 def extract_plot_nbs(nb_fnames):
