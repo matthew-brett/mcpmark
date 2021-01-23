@@ -15,6 +15,8 @@ def cp_models(config):
         raise RuntimeError('No directory ' + models_base)
     for component in config['components']:
         model_path = op.join(models_base, component)
+        if not op.isdir(model_path):
+            raise RuntimeError('No directory ' + model_path)
         cp_model(model_path, component_path(config, component))
 
 

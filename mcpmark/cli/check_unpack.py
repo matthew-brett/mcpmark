@@ -32,7 +32,8 @@ def check_unpack1(config, fname, out_path, df, clobber, known):
     this_out = op.join(out_path, st_login)
     if op.isdir(this_out):
         if not clobber:
-            raise RuntimeError(f'Directory "{this_out}" exists')
+            raise RuntimeError(f'Unpacking {fname} failed because '
+                               f'directory "{this_out}" exists')
         shutil.rmtree(this_out)
     os.makedirs(this_out)
     with ZipFile(fname, 'r') as zf:
