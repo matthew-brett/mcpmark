@@ -59,7 +59,7 @@ Running tests
 ---------------------------------------------------------------------
 Question q_01_a_value > Suite 1 > Case 4
 
->>> # Value for a should be 43
+>>> # Value for a should be 42
 >>> a == 42
 False
 
