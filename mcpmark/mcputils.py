@@ -90,8 +90,6 @@ def full2cv_lookup(full_name, config):
     return full2cv_name(full_name)
 
 
-
-
 def get_notebooks(in_dir,
                   lexts=('.rmd', '.ipynb'),
                   first_only=False,
@@ -172,6 +170,9 @@ def read_grade_output(grades_fname):
 
 def nbs2markups(nb_fnames):
     """ Manual adjustments from notebook text
+
+    Markups are lines beginning "#M: " followed by a floating point number or
+    integer.  This functions sums these numbers.  Postive numbers to add marks.
     """
     cg = CanvasGrader()
     markup_marks = {}

@@ -39,7 +39,7 @@ def write_grade_report(all_grades, out_path):
         for tn in sorted(grades):
             lines.append(f'{tn}: {grades[tn]}')
         lines.append(f'Total: {sum(grades.values())}\n')
-    out_fname = op.join(out_path, 'marking', f'autograde.md')
+    out_fname = op.join(out_path, 'marking', 'autograde.md')
     with open(out_fname, 'wt') as fobj:
         fobj.write('\n'.join(lines))
 
