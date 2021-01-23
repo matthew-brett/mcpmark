@@ -156,7 +156,7 @@ def show_grade(nb_fname, wd):
     try:
         grades = grade_nb_fname(nb_fname, wd)
     except Exception as exc:
-        print(nb_fname)
+        print(f'{exc} in {nb_fname}')
         return
     print(nb_fname)
     print_grades(grades)
