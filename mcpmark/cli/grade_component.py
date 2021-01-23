@@ -39,9 +39,13 @@ def read_plots(config, component):
         return {}
     scores = get_plot_scores(plot_fname)
     sums = {}
-    for k, v in scores.items():
-        assert splot_qs == set(v)
-        sums[k] = sum(v.values())
+    for login, vs in scores.items():
+        missing = splot_qs.difference(vs)
+        if missing:
+            raise MCPError(
+                f'Plot scores missing for {login}; {", ".join(missing)}')
+        assert splot_qs == set(vs)
+        sums[login] = sum(vs.values())
     return sums
 
 
@@ -83,15 +87,21 @@ def read_broken(config, component):
 def check_parts(autos, plots, broken, manuals):
     # Autos should have the same keys as plots, if present.
     if len(plots):
-        assert set(autos) == set(plots)
+        if set(autos) != set(plots):
+            raise MCPError(f'Different submissions for autos and plots')
     # No student should be in both autos and broken
     if broken:
-        assert len(set(autos).intersection(broken)) == 0
+        broken_in_autos = set(autos).intersection(broken)
+        if len(broken_in_autos):
+            raise MCPError(f'Broken nbs {", ".join(broken_in_autos)} in auto '
+                           'scores')
     # Union of autos and broken should be all students.
     slogins = set(autos).union(broken)
     # Manuals should all have same keys, if present:
     for m in manuals:
-        assert set(m) == slogins
+        missing = slogins.difference(m)
+        if missing:
+            raise MCPError(f'Missing manual score for {", ".join(missing)}')
     return sorted(slogins)
 
 
