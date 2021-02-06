@@ -122,6 +122,7 @@ def get_notebooks(in_dir,
     for root, dirs, files in os.walk(in_dir):
         if not recursive:
             dirs[:] = []
+        dirs[:] = [d for d in dirs if d != '.ipynb_checkpoints']
         fnames = [op.join(root, fn) for fn in sorted(files)]
         if len(fnames) == 0:
             continue
