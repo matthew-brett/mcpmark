@@ -179,3 +179,11 @@ def test_read_config():
     del raw_config['student_id_col']
     c4 = proc_config(raw_config, EG_CONFIG_FNAME)
     assert c4['student_id_col'] == 'SIS Login ID'
+
+
+def test_more_config():
+    config = read_config(EG_CONFIG_FNAME)
+    pander_config = config['components']['pandering']
+    assert pander_config['manual_qs'] == ['basic_sorting_6',
+                                          'births_6',
+                                          'cfpb_complaints_4']
