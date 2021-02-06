@@ -164,7 +164,7 @@ def test_read_config():
     assert config['assignment_zip_path'] == op.expanduser(
         '~/Downloads/submissions_second')
     with open(EG_CONFIG_FNAME, 'rt') as fobj:
-        raw_config = yaml.load(fobj)
+        raw_config = yaml.load(fobj, Loader=yaml.SafeLoader)
     c2 = proc_config(raw_config, EG_CONFIG_FNAME)
     assert c2['assignment_zip_path'] == op.expanduser(
         '~/Downloads/submissions_second')
