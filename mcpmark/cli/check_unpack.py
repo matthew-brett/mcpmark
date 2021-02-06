@@ -5,7 +5,7 @@
 import os
 import os.path as op
 import shutil
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 from fnmatch import fnmatch
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from glob import glob
@@ -36,8 +36,12 @@ def check_unpack1(config, fname, out_path, df, clobber, known):
                                f'directory "{this_out}" exists')
         shutil.rmtree(this_out)
     os.makedirs(this_out)
-    with ZipFile(fname, 'r') as zf:
-        zf.extractall(path=this_out)
+    try:
+        with ZipFile(fname, 'r') as zf:
+            zf.extractall(path=this_out)
+    except BadZipFile as e:
+        raise RuntimeError(f"Could not extract from {fname} with error:\n"
+                           f"{e}")
     # Clean extracted files.
     for root, dirs, files in os.walk(this_out):
         ok_dirs = []
