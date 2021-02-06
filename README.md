@@ -27,12 +27,12 @@ in a utility library.
 * `mcp-cp-models`
 * Per notebook / component:
     * Develop tests in `model/<component_name>/tests` directory.
-    * Test tests with `grad_oknb.py`.
+    * Test tests with `grade_oknb.py`.
     * Copy tests etc into components directory with `mcp-cp-models`
     * e.g. `mcp-find-duplicates components/my_component/*.Rmd` to analyze
       duplicates, write summary into some file, say `report.md`.
     * Check notebook execution with `mcp-run-notebooks <path_to_notebooks>`
-    * Move any broken notebooks to `broken` directory, and mark in
+    * Move any irreparable notebooks to `broken` directory, and mark in
       `broken.csv` file.
     * `mcp-extract-manual`. Edit notebooks where manual component not found.
     * Mark generated manual file in `<component>/marking/*_report.md`.
