@@ -36,7 +36,7 @@ in a utility library.
       `broken.csv` file.
     * `mcp-extract-manual`. Edit notebooks where manual component not found.
     * Mark generated manual file in `<component>/marking/*_report.md`.
-    * Check manual scoring with something like `mcp-parse-manual-scores
+    * Check manual scoring with something like `mcp-manual-scores
       components/lymphoma/dunleavy_plausible_report.md`
     * `mcp-extract-plots <component_name>` - edited `marked/plot_nbs.ipynb` to
       add marks.

@@ -13,7 +13,7 @@ The total marks are the total of the marks from these four sources.
 
 ## Autograded OKpy tests
 
-Autograded tegsts are in [OKpy
+Autograded tests are in [OKpy
 format](https://okpy.github.io/documentation/client.html#ok-client-setup-ok-tests)
 
 We run the tests by having test cells in the notebook, and putting suitable
