@@ -25,19 +25,25 @@ in a utility library.
 * Develop tests for each component in `models` directory.  Check the marks
   with `grade_oknb.py` in textbook `_scripts` directory.
 * `mcp-cp-models`
+* For items below, assume script `rerun` is on the path and has contents
+  `while true; do $@; done`
 * Per notebook / component:
     * Develop tests in `model/<component_name>/tests` directory.
     * Test tests with `grade_oknb.py`.
     * Copy tests etc into components directory with `mcp-cp-models`
     * e.g. `mcp-find-duplicates components/my_component/*.Rmd` to analyze
       duplicates, write summary into some file, say `report.md`.
-    * Check notebook execution with `mcp-run-notebooks <path_to_notebooks>`
+    * Check notebook execution with `mcp-run-notebooks <path_to_notebooks>`.
+      Consider running this with e.g. `rerun do mcp-run-notebooks
+      components/pandering` to continuously test notebooks.
     * Move any irreparable notebooks to `broken` directory, and mark in
       `broken.csv` file.
-    * `mcp-extract-manual`. Edit notebooks where manual component not found.
+    * `mcp-extract-manual <component>`. Edit notebooks where manual component
+      not found.  Maybe e.g. `rerun mcp-extract-manual pandering`.
     * Mark generated manual file in `<component>/marking/*_report.md`.
     * Check manual scoring with something like `mcp-manual-scores
-      components/lymphoma/dunleavy_plausible_report.md`
+      components/lymphoma/dunleavy_plausible_report.md`.  Or you can leave
+      that until grading the whole component with `mcp-grade-component`.
     * `mcp-extract-plots <component_name>` - edited `marked/plot_nbs.ipynb` to
       add marks.
     * Run auto-grading with `mcp-grade-nbs.py <component_name>`.
@@ -47,7 +53,7 @@ in a utility library.
       -- e.g. `#M: -2.5`.  They reach the final score via
       `mcp-grade-components`.
     * Final run of `mcp-grade-nbs`
-    * `mcp-grade-component <coponent_name>`.
+    * `mcp-grade-component <component_name>`.
 
 When done:
 
