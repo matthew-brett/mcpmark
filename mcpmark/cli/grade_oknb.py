@@ -112,8 +112,10 @@ def grade_nb_fname(nb_fname, wd=None):
     try:
         return grade_nb(nb, wd)
     except CellExecutionError as e:
-        raise e.__class__(f'{e.traceback}\nError in {nb_fname}',
-                          e.ename, e.evalue)
+        # ename, evalue became required parameters at some point
+        # after nbconvert 5.6.1, is true of 6.0.7.
+        args = (e.ename, e.evalue) if hasattr(e, 'ename') else ()
+        raise e.__class__(f'{e.traceback}\nError in {nb_fname}', *args)
 
 
 def print_grades(grades):
