@@ -11,6 +11,28 @@ Marks come from up to four sources:
 
 The total marks are the total of the marks from these four sources.
 
+## Files
+
+Each notebook should have a directory, named for the notebook, that contains:
+
+* `.ipynb` files for each student
+* A `<notebook_name>_solution.ipynb` file with the solution.
+* A `tests` directory containing files for automatic testing (see below)
+* A `marking` directory containing some of the following files:
+    * `aotograde.md` : question by question breakdown of the autograding marks
+      for each question.
+    * `autograde.csv` : CSV file, one row per student, with marks for each
+      autograded question.
+    * `plot_nb.ipynb` : (if there are manually marked plot questions);
+      a notebook containing all the plots for each notebook (and therefore,
+      student), with marks for each plot question.
+    * `<question_name>_report.md` : (if there are manually marked text
+      questions).  There is none such file per manual text question.  The file
+      contains the extracted text for the named question, from each notebook,
+      along with the mark.
+    * `component.csv` : CSV file with one row per student, having collated mark
+      from all components above.
+
 ## Autograded OKpy tests
 
 Autograded tests are in [OKpy
