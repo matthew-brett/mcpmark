@@ -391,3 +391,50 @@ def cp_model(model_path, component_path):
             full_path = op.join(root, fn)
             rel_path = op.relpath(full_path, model_path)
             cp_with_dir(full_path, op.join(component_path, rel_path))
+
+
+def get_component_config(parser, def_config='assign_config.yaml',
+                         argv=None):
+    """ Use `parser` to collect config and component name
+
+    Add "component" and "--config-path" arguments to parser, parse arguments.
+    By default, return the only component name if none specified.
+
+    Parameters
+    ----------
+    parser : :class:`ArgumentParser` object
+        Command line argument parser.
+    def_config : str, optional
+        Default filename for configuration file.
+    argv : sequence, optional
+        Command line arguments.  Default of None uses ``sys.argv``.
+
+    Returns
+    -------
+    args : object
+        Parsed command line parameters. By default, set `args.component` to the
+        only component name if none specified.
+    config : dict
+        Configuration as read from default or specified `config_path`.
+    """
+    parser.add_argument('component', nargs='?',
+                        help='Component name')
+    parser.add_argument('--config-path',
+                        default=op.join(os.getcwd(), def_config),
+                        help='Path to config file')
+    args = parser.parse_args(argv)
+    config = read_config(args.config_path)
+    if ('components' not in config or
+        config['components'] is None or
+        len(config['components']) == 0):
+        raise RuntimeError('No components in config')
+    comp_names = list(config['components'])
+    if args.component is None:
+        if len(comp_names) != 1:
+            raise RuntimeError('Specify component from: ' +
+                               ', '.join(comp_names))
+        args.component = comp_names[0]
+    elif args.component not in comp_names:
+        raise RuntimeError(f'Component "{args.component}" must be one of: '
+                           + ', '.join(comp_names))
+    return args, config

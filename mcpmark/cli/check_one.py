@@ -10,7 +10,7 @@ from glob import glob
 
 from gradools import canvastools as ct
 
-from ..mcputils import read_config, get_minimal_df
+from ..mcputils import get_minimal_df, get_component_config
 
 
 def check_rename(config, fnames, out_path, component, df, clobber=False):
@@ -41,20 +41,13 @@ def check_rename1(config, fname, out_path, component, df, clobber, known):
 def get_parser():
     parser = ArgumentParser(description=__doc__,  # Usage from docstring
                             formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument('component',
-                        help='Component name for notebooks')
-    parser.add_argument('--config-path',
-                        default=op.join(os.getcwd(), 'assign_config.yaml'),
-                        help='Path to config file')
     parser.add_argument('--clobber', action='store_true',
                         help='If set, delete existing output directories')
     return parser
 
 
 def main():
-    parser = get_parser()
-    args = parser.parse_args()
-    config = read_config(args.config_path)
+    args, config = get_component_config(get_parser())
     nb_glob = op.join(config['assignment_nb_path'], '*.ipynb')
     nb_fnames = glob(nb_glob)
     if len(nb_fnames) == 0:

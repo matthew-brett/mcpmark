@@ -12,15 +12,14 @@ A student's grade comes from:
 * Grades from manual answer grading.
 """
 
-import os
 import os.path as op
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from glob import glob
 
 import pandas as pd
 
-from ..mcputils import (read_config, read_manual, get_notebooks, nbs2markups,
-                       get_plot_scores, component_path, MCPError)
+from ..mcputils import (get_component_config, read_manual, get_notebooks, nbs2markups,
+                        get_plot_scores, component_path, MCPError)
 
 
 def read_grades(fname, stid_col, total_col):
@@ -139,18 +138,11 @@ def write_component_csv(config, component, grades):
 def get_parser():
     parser = ArgumentParser(description=__doc__,  # Usage from docstring
                             formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument('component',
-                        help='Component name for which to extract')
-    parser.add_argument('--config-path',
-                        default=op.join(os.getcwd(), 'assign_config.yaml'),
-                        help='Path to config file')
     return parser
 
 
 def main():
-    parser = get_parser()
-    args = parser.parse_args()
-    config = read_config(args.config_path)
+    args, config = get_component_config(get_parser())
     grades = grade_component(config, args.component)
     out_csv = write_component_csv(config, args.component, grades)
     print(pd.read_csv(out_csv).describe())

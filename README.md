@@ -25,6 +25,8 @@ in a utility library.
 * Develop tests for each component in `models` directory.  Check the marks
   with `grade_oknb.py` in textbook `_scripts` directory.
 * `mcp-cp-models`
+* In what follows, you can generally omit the `<component_name>` argument when
+  you only have one component.
 * For items below, assume script `rerun` is on the path and has contents
   `while true; do $@; done`
 * Per notebook / component:
@@ -38,8 +40,8 @@ in a utility library.
       components/pandering` to continuously test notebooks.
     * Move any irreparable notebooks to `broken` directory, and mark in
       `broken.csv` file.
-    * `mcp-extract-manual <component>`. Edit notebooks where manual component
-      not found.  Maybe e.g. `rerun mcp-extract-manual pandering`.
+    * `mcp-extract-manual <component_name>`. Edit notebooks where manual
+      component not found.  Maybe e.g. `rerun mcp-extract-manual pandering`.
     * Mark generated manual file in `<component>/marking/*_report.md`.
     * Check manual scoring with something like `mcp-manual-scores
       components/lymphoma/dunleavy_plausible_report.md`.  Or you can leave

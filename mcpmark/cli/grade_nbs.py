@@ -2,23 +2,17 @@
 """ Calculate grades for notebooks.
 """
 
-import os
 import os.path as op
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from .grade_oknb import grade_nb_fname
-from ..mcputils import (read_config, get_notebooks, loginfn2login,
-                       component_path)
+from ..mcputils import (get_notebooks, loginfn2login, component_path,
+                        get_component_config)
 
 
 def get_parser():
     parser = ArgumentParser(description=__doc__,  # Usage from docstring
                             formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument('component',
-                        help='Component name for which to extract')
-    parser.add_argument('--config-path',
-                        default=op.join(os.getcwd(), 'assign_config.yaml'),
-                        help='Path to config file')
     parser.add_argument('--nb-lext', action='append',
                         help='Ordered list of notebook extensions '
                         'to search for (lower case, including . prefix)')
@@ -58,9 +52,7 @@ def write_grade_csv(config, all_grades, out_path):
 
 
 def main():
-    parser = get_parser()
-    args = parser.parse_args()
-    config = read_config(args.config_path)
+    args, config = get_component_config(get_parser())
     nb_path = component_path(config, args.component)
     lexts = args.nb_lext if args.nb_lext else ['.rmd', '.ipynb']
     nb_fnames = get_notebooks(nb_path, lexts, first_only=True)

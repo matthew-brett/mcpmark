@@ -2,17 +2,19 @@
 """
 
 import os.path as op
+from argparse import ArgumentParser
 
 import yaml
 
 from mcpmark.mcputils import (get_notebooks, get_manual_scores, MCPError,
                               match_plot_scores, read_config,
-                              proc_config)
+                              proc_config, get_component_config)
 
 import pytest
 
 DATA_DIR = op.join(op.dirname(__file__), 'data')
 EG_CONFIG_FNAME = op.join(DATA_DIR, 'assign_config.yaml')
+EG_1C_CONFIG_FNAME = op.join(DATA_DIR, 'one_comp_config.yaml')
 
 
 def touch(fname):
@@ -187,3 +189,29 @@ def test_more_config():
     assert pander_config['manual_qs'] == ['basic_sorting_6',
                                           'births_6',
                                           'cfpb_complaints_4']
+
+
+def test_get_component_config():
+    # Single component case.
+    argv = ['--config-path', EG_1C_CONFIG_FNAME]
+    args, config = get_component_config(ArgumentParser(), argv=argv)
+    assert list(config['components']) == ['on_regression']
+    assert args.component == 'on_regression'
+    # Multiple component case, no component specified
+    argv = ['--config-path', EG_CONFIG_FNAME]
+    with pytest.raises(RuntimeError):
+        args, config = get_component_config(ArgumentParser(), argv=argv)
+    # Multiple component, component specified
+    argv += ['pandering']
+    args, config = get_component_config(ArgumentParser(), argv=argv)
+    assert args.component == 'pandering'
+    # Multiple component, component misspecified
+    argv[-1] = 'not_pandering'
+    with pytest.raises(RuntimeError):
+        args, config = get_component_config(ArgumentParser(), argv=argv)
+    # No component cases.
+    for froot in ('no', 'empty', 'blank'):
+        config_fname = op.join(DATA_DIR, f'{froot}_comp_config.yaml')
+        argv = ['--config-path', config_fname]
+        with pytest.raises(RuntimeError):
+            args, config = get_component_config(ArgumentParser(), argv=argv)

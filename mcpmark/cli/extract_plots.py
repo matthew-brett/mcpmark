@@ -8,8 +8,8 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 import nbformat.v4 as nbf
 
-from ..mcputils import (read_config, get_notebooks, loginfn2login,
-                        get_plot_nb, execute_nb_fname, component_path)
+from ..mcputils import (get_component_config, get_notebooks, loginfn2login, get_plot_nb,
+                        execute_nb_fname, component_path)
 
 
 def extract_plot_nbs(nb_fnames):
@@ -39,11 +39,6 @@ def write_plot_nb(plot_nbs, plot_qs, out_path):
 def get_parser():
     parser = ArgumentParser(description=__doc__,  # Usage from docstring
                             formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument('component',
-                        help='Component name for which to extract')
-    parser.add_argument('--config-path',
-                        default=op.join(os.getcwd(), 'assign_config.yaml'),
-                        help='Path to config file')
     parser.add_argument('--nb-lext', action='append',
                         help='Ordered list of notebook extensions '
                         'to search for (lower case, including . prefix)')
@@ -51,9 +46,7 @@ def get_parser():
 
 
 def main():
-    parser = get_parser()
-    args = parser.parse_args()
-    config = read_config(args.config_path)
+    args, config = get_component_config(get_parser())
     plot_qs = config['components'][args.component]['plot_qs']
     nb_path = component_path(config, args.component)
     lexts = args.nb_lext if args.nb_lext else ['.rmd', '.ipynb']
