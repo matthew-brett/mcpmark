@@ -17,8 +17,9 @@ def write_exports(config, out_dir):
     in_fname = config['mark_fname']
     in_df = get_minimal_df(config)
     df = in_df.set_index(login_fn).drop(ass_fn, axis=1)
+    mark_df = pd.read_csv(in_fname).set_index(login_fn)
     for out_field in ('Percent', 'Total'):
-        final = pd.read_csv(in_fname).set_index(login_fn)[[out_field]]
+        final = mark_df.loc[:, [out_field]].copy()
         ok_final = final.rename(columns={out_field: ass_fn})
         ffinal = ok_final.join(df)
         ffinal[login_fn] = ffinal.index

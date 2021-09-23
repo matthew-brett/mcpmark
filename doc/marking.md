@@ -1,5 +1,3 @@
-# Marking
-
 ## Mark components
 
 Marks come from up to four sources:
@@ -32,6 +30,13 @@ Each notebook should have a directory, named for the notebook, that contains:
       along with the mark.
     * `component.csv` : CSV file with one row per student, having collated mark
       from all components above.
+
+## Marking machinery
+
+The marking uses a structured system called
+[MCPMark](https://github.com/matthew-brett/mcpmark).  MCPMark automates the
+procedures for running the automatic code grading, extracting plots and text
+answers, and arranging the submissions in organized directories.
 
 ## Autograded OKpy tests
 
@@ -206,7 +211,7 @@ _ = ok.grade('q_02_b_value')
 ```
 ~~~
 
-# Hand-graded plot questions.
+## Hand-graded plot questions.
 
 The MCPMark system can automatically execute student notebooks, and extract
 generated plots into a single plot-only notebook that contains all the plots
@@ -221,7 +226,7 @@ each plot.
 
 Some notebook assignments have no graded plot questions.
 
-# Hand-graded text questions.
+## Hand-graded text questions.
 
 Some questions are free text, and ask the student to explain something or give
 justification for an answer.

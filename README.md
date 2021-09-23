@@ -36,7 +36,7 @@ in a utility library.
     * e.g. `mcp-find-duplicates components/my_component/*.Rmd` to analyze
       duplicates, write summary into some file, say `report.md`.
     * Check notebook execution with `mcp-run-notebooks <path_to_notebooks>`.
-      Consider running this with e.g. `rerun do mcp-run-notebooks
+      Consider running this with e.g. `rerun mcp-run-notebooks
       components/pandering` to continuously test notebooks.
     * Move any irreparable notebooks to `broken` directory, and mark in
       `broken.csv` file.
@@ -46,16 +46,18 @@ in a utility library.
     * Check manual scoring with something like `mcp-manual-scores
       components/lymphoma/dunleavy_plausible_report.md`.  Or you can leave
       that until grading the whole component with `mcp-grade-component`.
-    * `mcp-extract-plots <component_name>` - edited `marked/plot_nbs.ipynb` to
+    * `mcp-extract-plots <component_name>` - edit `marked/plot_nbs.ipynb` to
       add marks.
-    * Run auto-grading with `mcp-grade-nbs.py <component_name>`.
+    * Run auto-grading with `mcp-grade-nbs <component_name>`
+      (`<component_name>`) is optional if a single component.
     * Review `<component>/marking/autograde.md`.
     * Update any manual fixes with `#M: ` notation to add / subtract marks.
       These are lines in code cells / chunks, of form `#M: <score_increment>`
       -- e.g. `#M: -2.5`.  They reach the final score via
       `mcp-grade-components`.
     * Final run of `mcp-grade-nbs`
-    * `mcp-grade-component <component_name>`.
+    * `mcp-grade-component <component_name>`; (`<component_name>`) is optional
+      if a single component.
 
 When done:
 
