@@ -1,18 +1,20 @@
 # Configuration for an assignment.
 # An "assignment" is one submitted piece of work.
-# It might have multiple "components".  These are typically notebooks.
+# It might have multiple "components".  One component corresponds to one
+# notebook.
 # All relative paths here are relative to this config file.
 # All path keys should end with "_path" (see mcputils.py).
 
-# Path containing student submissions as zip files.
-assignment_zip_path: /some/path/submissions_second
-# Directory to which to unpack submission zip files.
+# Path containing downloaded student submissions as zip files (multiple
+# components) or ipynb files (single component).
+input_submission_path: /some/path/submissions_second
+# Directory to which to unpack / copy checked submission files.
 submissions_path: submissions_second
-# If a single notebook, directory containing submissions
-# assignment_nb_path: submitted_notebooks
-# Grade export from Canvas (relative to this config file)
+# Grade export from Canvas (relative to this config file).
+# Used for finding which students should have submitted, and later,
+# for building marks output file for export to Canvas.
 canvas_export_path: "2020-03-20T0949_some_course_name.csv"
-# Student identifying column name
+# Column name in file above that identifies student.
 student_id_col: "SIS Login ID"
 # Canvas assignment name
 assignment_name: "An assignment name"

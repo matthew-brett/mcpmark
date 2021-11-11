@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 """ Move one-component submissions into multi-submission structure.
+
+Usually used via `mcp-check-unpack`.
 """
 
 import os
@@ -48,7 +50,7 @@ def get_parser():
 
 def main():
     args, config = get_component_config(get_parser())
-    nb_glob = op.join(config['assignment_nb_path'], '*.ipynb')
+    nb_glob = op.join(config['input_submission_path'], '*.ipynb')
     nb_fnames = glob(nb_glob)
     if len(nb_fnames) == 0:
         raise RuntimeError(f'No files with glob "{nb_glob}"')

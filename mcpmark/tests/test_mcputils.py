@@ -163,12 +163,12 @@ def test_read_config():
     assert config['assignment_name'] == 'An assignment name'
     assert config['student_id_col'] == 'SIS Login ID'
     # Check home directory gets expanded in paths.
-    assert config['assignment_zip_path'] == op.expanduser(
+    assert config['input_submission_path'] == op.expanduser(
         '~/Downloads/submissions_second')
     with open(EG_CONFIG_FNAME, 'rt') as fobj:
         raw_config = yaml.load(fobj, Loader=yaml.SafeLoader)
     c2 = proc_config(raw_config, EG_CONFIG_FNAME)
-    assert c2['assignment_zip_path'] == op.expanduser(
+    assert c2['input_submission_path'] == op.expanduser(
         '~/Downloads/submissions_second')
     raw_config['student_id_col'] = 'some other col'
     canvas_csv = op.join('~', 'foo', 'bar.csv')

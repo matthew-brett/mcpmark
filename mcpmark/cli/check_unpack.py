@@ -13,6 +13,7 @@ from glob import glob
 from gradools import canvastools as ct
 
 from ..mcputils import read_config, get_minimal_df
+from .check_one import check_rename
 
 BAD_GLOBS = ['__pycache__', '__MACOSX', '.*']
 
@@ -72,13 +73,20 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
     config = read_config(args.config_path)
-    zip_glob = op.join(config['assignment_zip_path'], '*.zip')
-    zip_fnames = glob(zip_glob)
-    if len(zip_fnames) == 0:
-        raise RuntimeError(f'No files with glob "{zip_glob}"')
+    one_comp = len(config['components']) == 1
+    exp_ext = '.ipynb' if one_comp else '.zip'
+    fn_glob = op.join(config['input_submission_path'], '*' + exp_ext)
+    fnames = glob(fn_glob)
+    if len(fnames) == 0:
+        raise RuntimeError(f'No files with glob "{fn_glob}"')
     out_path = config['submissions_path']
     df = get_minimal_df(config)
-    check_unpack(config, zip_fnames, out_path, df, clobber=args.clobber)
+    if one_comp:
+        component = list(config['components'])[0]
+        check_rename(config, fnames, out_path, component, df,
+                     clobber=args.clobber)
+    else:
+        check_unpack(config, fnames, out_path, df, clobber=args.clobber)
 
 
 if __name__ == '__main__':
