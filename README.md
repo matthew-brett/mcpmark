@@ -115,9 +115,11 @@ pytest mcpmark
 
 When done:
 
-* `mcp-combine-components` to generate the summary `.csv` file.  Do this even
-  when there is only one component.
-* `mcp-export-marks`
+* `mcp-rescale-combines` to rescale the component marks to their out-of figure
+  given in `assign_config.yaml`, and generate the summary `.csv` file.  Do this
+  even when there is only one component (in order to do the rescaling).
+* `mcp-export-marks` to convert the output of `ncp-rescale-combines` to
+  a format for import into Canvas.
 
 ## Utilities
 

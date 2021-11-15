@@ -29,6 +29,9 @@ def process_components(config):
         csv_pth = op.join(component_path(config, name),
                           'marking',
                           'component.csv')
+        if not op.isfile(csv_pth):
+            raise RuntimeError(f'No component csv file at {csv_pth}; '
+                               'Do you need to run mcp-grade-component?')
         df = pd.read_csv(csv_pth).set_index(stid_col)
         series[name] = df['Mark'] * info['scaled_to'] / info['actual_max']
     final = pd.DataFrame(series)
