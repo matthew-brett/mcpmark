@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Process marks for upload to Canvas, submission to office.
+""" Export marks for upload to Canvas, submission to office.
 """
 
 import os
