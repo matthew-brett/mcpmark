@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" Extract parts for manual grading into their own .md files.
+""" Scale marks to final totals, combine components (if more than one).
 """
 
 import os
