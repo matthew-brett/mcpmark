@@ -14,7 +14,8 @@ import jupytext
 
 from rmdex.exerciser import make_solution
 from ..mcputils import (execute_nb_fname, get_notebooks,
-                        read_config)
+                        get_component_config,
+                        component_path as get_component_path)
 
 
 def clean_dir(start_path,
@@ -173,28 +174,19 @@ def clean_nb_dirs(nb_fnames):
 def get_parser():
     parser = ArgumentParser(description=__doc__,  # Usage from docstring
                             formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument('components', nargs='+',
-                        help='Components for which to write notebooks')
-    parser.add_argument('--components-path', default='components',
-                        help=('Path in which to find component '
-                              'directories'))
     parser.add_argument('-p', '--out-path',
                         help='Path at which to write nb marking tree')
     parser.add_argument('-t', '--type', default='feedback',
                         help='"feedback" or "moderation"')
-    parser.add_argument('--config-path',
-                        default=op.join(os.getcwd(), 'assign_config.yaml'),
-                        help='Path to config file')
     parser.add_argument('--clobber', action='store_true',
                         help='Whether to overwrite "out_path"')
     return parser
 
 
 def main():
-    parser = get_parser()
-    args = parser.parse_args()
-    config = read_config(args.config_path)
-    usuffix = config.get('jh_user_suffix')
+    args, config = get_component_config(get_parser(),
+                                        multi_component=True)
+    usuffix = config.get('jh_user_suffix', '')
     type2func = {'feedback': partial(fb_path_maker,
                                      usuffix=usuffix),
                  'moderation': mod_path_maker}
@@ -204,8 +196,8 @@ def main():
     root_path = args.type if args.out_path is None else args.out_path
     ensure_dir(root_path, args.clobber, args.clobber)
     pth_maker = type2func[args.type](root_path)
-    for component in args.components:
-        component_path = op.join(args.components_path, component)
+    for component in config['components']:
+        component_path = get_component_path(config, component)
         out_nbs = write_component(component_path, pth_maker)
         clean_nb_dirs(out_nbs)
         if args.type == 'moderation' and out_nbs:

@@ -87,7 +87,7 @@ def check_parts(autos, plots, broken, manuals):
     # Autos should have the same keys as plots, if present.
     if len(plots):
         if set(autos) != set(plots):
-            raise MCPError(f'Different submissions for autos and plots')
+            raise MCPError('Different submissions for autos and plots')
     # No student should be in both autos and broken
     if broken:
         broken_in_autos = set(autos).intersection(broken)

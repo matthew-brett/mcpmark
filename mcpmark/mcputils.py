@@ -6,6 +6,7 @@ import os.path as op
 from pathlib import Path
 import re
 import shutil
+import types
 
 import yaml
 import numpy as np
@@ -57,8 +58,6 @@ def proc_config(config, config_fname):
         res[key] = value
     # Directory containing config file.
     res['base_path'] = op.dirname(config_fname)
-    # Defaults
-    res['student_id_col'] = config.get('student_id_col', "SIS Login ID")
     return res
 
 
@@ -128,8 +127,16 @@ def attend_fn2info(fname):
 
 class AttendHandler(SubmissionHandler):
 
+    def __init__(self, config):
+        super().__init__(config)
+        if not 'github_users_path' in config:
+            raise ValueError('Need github_users_path in config')
+        df = pd.read_csv(config['github_users_path'])
+        self.gh_users = pd.DataFrame({'Email': df['Unnamed: 5'],
+                                 'gh_user': df[' q']})
+
     def get_student_id(self, fname, df):
-        if isinstance(df, (None, str)):
+        if isinstance(df, (types.NoneType, str)):
             df = self.read_student_data(df)
         name, email = attend_fn2info(fname)
         rows = df[df['Email'] == email]
@@ -139,12 +146,16 @@ class AttendHandler(SubmissionHandler):
     def read_student_data(self, fname=None):
         fname = self.config['attendance_export_path'] if fname is None else fname
         required = ['StudentId', 'Forename', 'Surname', 'Email',
-                   'login']
+                   'gh_user']
         df = pd.read_excel(fname)
         dtypes = {'StudentId': int}
         for name, dt in dtypes.items():
             df[name] = df[name].astype(dt)
-        df['login'] = df['Email'].str.split('@', expand=True)[0]
+        df = df.merge(self.gh_users, on='Email', how='left')
+        missing = df['gh_user'].isna()
+        if np.any(missing):
+            raise ValueError('Missing gh_user for ' +
+                             ', '.join(df.loc[missing, 'Email']))
         return df[required].set_index('StudentId')
 
 
@@ -480,8 +491,10 @@ def cp_model(model_path, component_path):
             cp_with_dir(full_path, op.join(component_path, rel_path))
 
 
-def get_component_config(parser, def_config='assign_config.yaml',
-                         argv=None):
+def get_component_config(parser,
+                         def_config='assign_config.yaml',
+                         argv=None,
+                         multi_component=False):
     """ Use `parser` to collect config and component name
 
     Add "component" and "--config-path" arguments to parser, parse arguments.
@@ -495,6 +508,10 @@ def get_component_config(parser, def_config='assign_config.yaml',
         Default filename for configuration file.
     argv : sequence, optional
         Command line arguments.  Default of None uses ``sys.argv``.
+    multi_components, {False, True}, optional
+        If False, specify up to 0 or 1 component.  If True, specify 0 more
+        components.  If you specify 0 components, then the exercise must be a
+        single-component exercise, and that component is implied.
 
     Returns
     -------
@@ -504,7 +521,13 @@ def get_component_config(parser, def_config='assign_config.yaml',
     config : dict
         Configuration as read from default or specified `config_path`.
     """
-    parser.add_argument('component', nargs='?',
+    if multi_component:
+        comp_nargs = '*'
+        comp_msg = 'one or more component'
+    else:
+        comp_nargs = '?'
+        comp_msg = 'component'
+    parser.add_argument('component', nargs=comp_nargs,
                         help='Component name')
     parser.add_argument('--config-path',
                         default=op.join(os.getcwd(), def_config),
@@ -516,11 +539,12 @@ def get_component_config(parser, def_config='assign_config.yaml',
         len(config['components']) == 0):
         raise RuntimeError('No components in config')
     comp_names = list(config['components'])
-    if args.component is None:
-        if len(comp_names) != 1:
-            raise RuntimeError('Specify component from: ' +
+    if not args.component:
+        if len(comp_names) == 0:
+            raise RuntimeError(f'Specify {comp_msg} from: ' +
                                ', '.join(comp_names))
-        args.component = comp_names[0]
+        args.component = (comp_names[0:1] if multi_component else
+                          comp_names[0])
     elif args.component not in comp_names:
         raise RuntimeError(f'Component "{args.component}" must be one of: '
                            + ', '.join(comp_names))

@@ -2,7 +2,6 @@
 """ Extract parts for manual grading into their own .md files.
 """
 
-import os
 import os.path as op
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
