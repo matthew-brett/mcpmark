@@ -130,10 +130,9 @@ class AttendHandler(SubmissionHandler):
     def __init__(self, config):
         super().__init__(config)
         if not 'github_users_path' in config:
-            raise ValueError('Need github_users_path in config')
+            raise ValueError('Need `github_users_path` in config')
         df = pd.read_csv(config['github_users_path'])
-        self.gh_users = pd.DataFrame({'Email': df['Unnamed: 5'],
-                                 'gh_user': df[' q']})
+        self.gh_users = df.loc[:, ['Email', 'gh_user']]
 
     def get_student_id(self, fname, df):
         if isinstance(df, (types.NoneType, str)):
