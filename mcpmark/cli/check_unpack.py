@@ -12,8 +12,8 @@ from glob import glob
 
 from gradools import canvastools as ct
 
-from ..mcputils import read_config, get_minimal_df
-from .check_one import check_rename
+from ..mcputils import read_config, make_submission_handler
+
 
 BAD_GLOBS = ['__pycache__', '__MACOSX', '.*']
 
@@ -80,13 +80,14 @@ def main():
     if len(fnames) == 0:
         raise RuntimeError(f'No files with glob "{fn_glob}"')
     out_path = config['submissions_path']
-    df = get_minimal_df(config)
+    sub_handler = make_submission_handler(config)
+    df = sub_handler.get_minimal_df()
     if one_comp:
         component = list(config['components'])[0]
-        check_rename(config, fnames, out_path, component, df,
-                     clobber=args.clobber)
+        sub_handler.check_rename(fnames, out_path, component, df,
+                                 clobber=args.clobber)
     else:
-        check_unpack(config, fnames, out_path, df, clobber=args.clobber)
+        sub_handler.check_unpack(fnames, out_path, df, clobber=args.clobber)
 
 
 if __name__ == '__main__':

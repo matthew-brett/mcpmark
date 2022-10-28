@@ -49,9 +49,9 @@ def expected_student_dirs(config):
     stid_col = config['student_id_col']
     dir_names = []
     for i_val, row in df.iterrows():
-        login_id = row.loc[stid_col]
-        if login_id not in config['known_missing']:
-            dir_names.append(login_id)
+        student_id = row.loc[stid_col]
+        if student_id not in config['known_missing']:
+            dir_names.append(student_id)
     assert len(set(dir_names)) == len(dir_names)  # Unique check
     return dir_names
 

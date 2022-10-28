@@ -57,9 +57,11 @@ pytest mcpmark
 * `cd homework1`
 * Download submissions (`.zip` files for multiple notebook submission, `.ipynb`
   files for single notebook submission). Download some directory e.g.
-  `submissions` in current directory. There should be one `.zip` file per student in the case of multiple notebook submissions, or one `.ipynb` file per student in case of single submissions.
+  `submissions` in current directory. There should be one `.zip` file per
+  student in the case of multiple notebook submissions, or one `.ipynb` file
+  per student in case of single submissions.
 * Download Canvas marks CSV file to this (`homework1`) directory.
-* Edit `assign_config.yaml` --- see `docs` for an example.   Use the
+* Edit `assign_config.yaml` --- see `doc/` for an example.   Use the
   `components` field to name and define components.  Each component corresponds
   to one notebook, so there will be one component for single notebook
   submissions, and multiple component for multiple notebook submissions.

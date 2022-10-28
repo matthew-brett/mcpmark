@@ -3,6 +3,7 @@
 
 import os
 import os.path as op
+from pathlib import Path
 import re
 import shutil
 
@@ -23,13 +24,6 @@ BAD_NAME_CHARS = '- '
 
 class MCPError(Exception):
     """ Class for MCP errors """
-
-
-def read_canvas(canvas_fname):
-    required = ('ID', 'Student', 'SIS User ID', 'SIS Login ID', 'Section')
-    dtypes = {'ID': int, 'SIS User ID': int}
-    df = ct.to_minimal_df(canvas_fname, required, dtypes)
-    return df.set_index('ID')
 
 
 def read_config(config_fname):
@@ -68,10 +62,103 @@ def proc_config(config, config_fname):
     return res
 
 
+class SubmissionHandler:
+
+    def __init__(self, config):
+        self.config = config
+
+    def get_minimal_df(self):
+        df = self.read_student_data()
+        df[self.config['assignment_name']] = np.nan
+        return df
+
+    def check_rename1(self, fname, out_path, component, df, clobber, known):
+        student_id = self.get_student_id(fname, df)
+        assert student_id not in known
+        this_out = op.join(out_path, student_id, component)
+        if op.isdir(this_out):
+            if not clobber:
+                raise RuntimeError(f'Directory "{this_out}" exists')
+            shutil.rmtree(this_out)
+        os.makedirs(this_out)
+        # Copy notebook.
+        out_fname = op.join(this_out, op.basename(fname))
+        shutil.copy2(fname, out_fname)
+        return out_fname
+
+    def check_rename(self, fnames, out_path, component, df, clobber=False):
+        known = set()
+        for fname in fnames:
+            out_dir = self.check_rename1(fname, out_path, component, df,
+                                         clobber, known)
+            print(f'Checked, renamed {fname} to {out_dir}')
+
+    def check_unpack(self, fnames, out_path, df, clobber=False):
+        known = set()
+        for fname in fnames:
+            out_dir = self.check_unpack1(fname, out_path, df, clobber, known)
+            print(f'Unpacked {fname} to {out_dir}')
+
+
+class CanvasHandler(SubmissionHandler):
+
+    def get_student_id(self, fname, df):
+        if isinstance(df, (None, str)):
+            df = self.read_student_data(df)
+        name1, name2, id_no = ct.fname2key(fname)
+        assert name2 == ''
+        return df.loc[int(id_no), self.config['student_id_col']]
+
+    def read_student_data(self, fname=None):
+        fname = self.config['canvas_export_path'] if fname is None else fname
+        required = ('ID', 'Student', 'SIS User ID', 'SIS Login ID', 'Section')
+        dtypes = {'ID': int, 'SIS User ID': int}
+        df = ct.to_minimal_df(fname, required, dtypes)
+        return df.set_index('ID')
+
+
+def attend_fn2info(fname):
+    froot = Path(fname).stem
+    match = re.search(r'(.*)\s+\((.+\..+@lis\.ac\.uk)\)',
+                        froot)
+    if match is None:
+        raise ValueError(f'{froot} does not match')
+    return match.groups()
+
+
+class AttendHandler(SubmissionHandler):
+
+    def get_student_id(self, fname, df):
+        if isinstance(df, (None, str)):
+            df = self.read_student_data(df)
+        name, email = attend_fn2info(fname)
+        rows = df[df['Email'] == email]
+        assert len(rows) == 1
+        return rows.iloc[0][self.config['student_id_col']]
+
+    def read_student_data(self, fname=None):
+        fname = self.config['attendance_export_path'] if fname is None else fname
+        required = ['StudentId', 'Forename', 'Surname', 'Email',
+                   'login']
+        df = pd.read_excel(fname)
+        dtypes = {'StudentId': int}
+        for name, dt in dtypes.items():
+            df[name] = df[name].astype(dt)
+        df['login'] = df['Email'].str.split('@', expand=True)[0]
+        return df[required].set_index('StudentId')
+
+
+def make_submission_handler(config):
+    if 'canvas_export_path' in config:
+        return CanvasHandler(config)
+    elif 'attendance_export_path' in config:
+        return AttendHandler(config)
+    else:
+        raise ValueError('No Canvas or Attendance path')
+
+
 def get_minimal_df(config):
-    df = read_canvas(config['canvas_export_path'])
-    df[config['assignment_name']] = np.nan
-    return df
+    return make_submission_handler(config).get_minimal_df()
 
 
 def full2cv_name(full_name):
