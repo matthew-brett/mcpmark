@@ -493,7 +493,8 @@ def cp_model(model_path, component_path):
 def get_component_config(parser,
                          def_config='assign_config.yaml',
                          argv=None,
-                         multi_component=False):
+                         multi_component=False,
+                         component_default='error'):
     """ Use `parser` to collect config and component name
 
     Add "component" and "--config-path" arguments to parser, parse arguments.
@@ -507,10 +508,15 @@ def get_component_config(parser,
         Default filename for configuration file.
     argv : sequence, optional
         Command line arguments.  Default of None uses ``sys.argv``.
-    multi_components, {False, True}, optional
-        If False, specify up to 0 or 1 component.  If True, specify 0 more
-        components.  If you specify 0 components, then the exercise must be a
-        single-component exercise, and that component is implied.
+    multi_components : {False, True}, optional
+        If False, ``component`` argument can be not-specified, or a single
+        component, and `args.component` will be a scalar.  If True,
+        specify 0 or more ``component`` arguments, and ``args.component`` will
+        be a list.
+    component_default : {'error', 'all'}, optional
+        Applies only if "component" argument not specified, and multiple
+        components exist.  In that case, and this set to `error`, then raise a
+        ``ValueError``.   If `all`, set components arg to be all components.
 
     Returns
     -------
@@ -520,12 +526,12 @@ def get_component_config(parser,
     config : dict
         Configuration as read from default or specified `config_path`.
     """
-    if multi_component:
-        comp_nargs = '*'
-        comp_msg = 'one or more component'
-    else:
-        comp_nargs = '?'
-        comp_msg = 'component'
+    if not component_default in ('all', 'error'):
+        raise ValueError(
+            "component_default should be one of 'all', 'error'")
+    comp_nargs, comp_msg, comp_suff = (
+        ('*', 'one or more components', 's') if multi_component else
+        ('?', 'component', ''))
     parser.add_argument('component', nargs=comp_nargs,
                         help='Component name')
     parser.add_argument('--config-path',
@@ -536,15 +542,25 @@ def get_component_config(parser,
     if ('components' not in config or
         config['components'] is None or
         len(config['components']) == 0):
-        raise RuntimeError('No components in config')
+        raise ValueError('No components in config')
     comp_names = list(config['components'])
     if not args.component:
-        if len(comp_names) == 0:
-            raise RuntimeError(f'Specify {comp_msg} from: ' +
-                               ', '.join(comp_names))
-        args.component = (comp_names[0:1] if multi_component else
-                          comp_names[0])
-    elif args.component not in comp_names:
-        raise RuntimeError(f'Component "{args.component}" must be one of: '
-                           + ', '.join(comp_names))
+        comp_err = f'Specify {comp_msg} from: ' + ', '.join(comp_names)
+        if not multi_component:
+            if len(comp_names) > 1:
+                raise ValueError(comp_err)
+            args.component = comp_names[0]
+        else:  # multi_component case
+            if component_default == 'all':
+                args.component = comp_names
+            elif component_default == 'error':
+                raise ValueError(comp_err)
+            else:
+                raise ValueError('component_default should be "error" or "all"')
+    else:
+        to_test = set(args.component) if multi_component else {args.component}
+        if to_test.difference(comp_names):
+            raise ValueError(
+                f'Component{comp_suff} "{args.component}" must be in ' +
+                ', '.join(comp_names))
     return args, config

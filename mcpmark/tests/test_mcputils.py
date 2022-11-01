@@ -177,10 +177,10 @@ def test_read_config():
     assert c3['student_id_col'] == 'some other col'
     # Check expansion of other fields.
     assert c3['canvas_export_path'] == op.expanduser(canvas_csv)
-    # Check the default student id col.
+    # Check the default student id col is unspecified
     del raw_config['student_id_col']
     c4 = proc_config(raw_config, EG_CONFIG_FNAME)
-    assert c4['student_id_col'] == 'SIS Login ID'
+    assert 'student_id_col' not in c4
 
 
 def test_more_config():
@@ -199,7 +199,7 @@ def test_get_component_config():
     assert args.component == 'on_regression'
     # Multiple component case, no component specified
     argv = ['--config-path', EG_CONFIG_FNAME]
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         args, config = get_component_config(ArgumentParser(), argv=argv)
     # Multiple component, component specified
     argv += ['pandering']
@@ -207,11 +207,11 @@ def test_get_component_config():
     assert args.component == 'pandering'
     # Multiple component, component misspecified
     argv[-1] = 'not_pandering'
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         args, config = get_component_config(ArgumentParser(), argv=argv)
     # No component cases.
     for froot in ('no', 'empty', 'blank'):
         config_fname = op.join(DATA_DIR, f'{froot}_comp_config.yaml')
         argv = ['--config-path', config_fname]
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ValueError):
             args, config = get_component_config(ArgumentParser(), argv=argv)
