@@ -85,17 +85,24 @@ def read_broken(config, component):
 
 def check_parts(autos, plots, broken, manuals):
     # Autos should have the same keys as plots, if present.
+    auto_set = set(autos)
     if len(plots):
-        if set(autos) != set(plots):
-            raise MCPError('Different submissions for autos and plots')
+        plot_set = set(plots)
+        if auto_set != plot_set:
+            auto_only = auto_set.difference(plot_set)
+            plot_only = plot_set.difference(auto_set)
+            msg = ('Plot and auto submissions differ - '
+                   f'plot only: {plot_only if plot_only else "(none)"}; '
+                   f'auto only: {auto_only if auto_only else "(none)"}')
+            raise MCPError(msg)
     # No student should be in both autos and broken
     if broken:
-        broken_in_autos = set(autos).intersection(broken)
+        broken_in_autos = auto_set.intersection(broken)
         if len(broken_in_autos):
             raise MCPError(f'Broken nbs {", ".join(broken_in_autos)} in auto '
                            'scores')
     # Union of autos and broken should be all students.
-    slogins = set(autos).union(broken)
+    slogins = auto_set.union(broken)
     # Manuals should all have same keys, if present:
     for m in manuals:
         missing = slogins.difference(m)
