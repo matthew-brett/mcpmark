@@ -15,6 +15,7 @@ import jupytext
 from rmdex.exerciser import make_solution
 from ..mcputils import (execute_nb_fname, get_notebooks,
                         get_component_config,
+                        make_submission_handler,
                         component_path as get_component_path)
 
 
@@ -88,16 +89,13 @@ class Solution:
 SOLUTION = Solution()
 
 
-def fb_path_maker(root_path, usuffix=''):
-
-    def gh2jh(gh_user):
-        return gh_user.lower().replace('-', '-2d')
+def fb_path_maker(root_path, handler):
 
     def maker(fname):
         in_nb_dir, in_nb_root = op.split(fname)
         login_id, ext = op.splitext(in_nb_root)
         component_dir, component_name = op.split(in_nb_dir)
-        jh_user = gh2jh(login_id + usuffix)
+        jh_user = handler.login2jh(login_id)
         login_id, ext = op.splitext(in_nb_root)
         return op.join(root_path,
                        jh_user,
@@ -189,9 +187,9 @@ def get_parser():
 def main():
     args, config = get_component_config(get_parser(),
                                         multi_component=True)
-    usuffix = config.get('jh_user_suffix', '')
+    handler = make_submission_handler(config)
     type2func = {'feedback': partial(fb_path_maker,
-                                     usuffix=usuffix),
+                                     handler=handler),
                  'moderation': mod_path_maker}
     if not args.type in type2func:
         raise RuntimeError('type must be one of ' +

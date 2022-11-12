@@ -98,6 +98,9 @@ class SubmissionHandler:
             out_dir = self.check_unpack1(fname, out_path, df, clobber, known)
             print(f'Unpacked {fname} to {out_dir}')
 
+    def login2jh(self, login):
+        return login
+
 
 class CanvasHandler(SubmissionHandler):
 
@@ -156,6 +159,9 @@ class AttendHandler(SubmissionHandler):
             raise ValueError('Missing gh_user for ' +
                              ', '.join(df.loc[missing, 'Email']))
         return df[required].set_index('StudentId')
+
+    def login2jh(self, login):
+        return login.lower().replace('-', '-2d')
 
 
 def make_submission_handler(config):

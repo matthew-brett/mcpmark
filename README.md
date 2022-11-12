@@ -74,9 +74,9 @@ pytest mcpmark
 * Run `mcp-check-unpack`.  If any errors arise, check and maybe change the
   submission filenames.
 * Run `mcp-prepare-components`.  This will check that all the students in the
-  Canvas CSV file have got matching notebook submissions for all required
-  components.  The error message should tell you what is missing.  If you
-  discover that the warning is a false positive, and you were not expecting
+  relevant student files have got matching notebook submissions for all
+  required components.  The error message should tell you what is missing.  If
+  you discover that the warning is a false positive, and you were not expecting
   this student to submit (yet), then fill in their ID in the `known_missing`
   list of the `assign_config.yaml` file, to tell Mcpmark not to check their
   submissions.  Then re-run `mcp-prepare-components`, repeating until you get
