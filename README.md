@@ -11,6 +11,25 @@ naming files, and grade output CSV format.
 The tools consist primarily command line utilities, with some supporting code
 in a utility library.
 
+## Quickstart
+
+For single component submission:
+
+```
+mcp-check-unpack
+mcp-prepare-components
+mcp-find-duplicates components/strings_and_vars/*.Rmd
+mcp-cp-models
+mcp-run-notebooks components/strings_and_vars
+mcp-extract-manual
+mcp-extract-plots
+mcp-grade-nbs
+# Review `<component>/marking/autograde.md`.
+mcp-grade-component
+mcp-scale-combine
+```
+
+
 ## Getting set up
 
 Make a virtual environment / Conda environment for running the marking code, and set yourself up in that environment:
@@ -96,14 +115,15 @@ pytest mcpmark
       components/pandering` to continuously test notebooks.
     * Move any irreparable notebooks to `broken` directory, and mark in
       `broken.csv` file.
-    * `mcp-extract-manual <component_name>`. Edit notebooks where manual
-      component not found.  Maybe e.g. `rerun mcp-extract-manual pandering`.
+    * `mcp-extract-manual <component_name>` (component name optional for single
+      component submissions). Edit notebooks where manual component not found.
+      Maybe e.g. `rerun mcp-extract-manual pandering`.
     * Mark generated manual file in `<component>/marking/*_report.md`.
     * Check manual scoring with something like `mcp-manual-scores
       components/lymphoma/dunleavy_plausible_report.md`.  Or you can leave
       that until grading the whole component with `mcp-grade-component`.
-    * `mcp-extract-plots <component_name>` - edit `marked/plot_nbs.ipynb` to
-      add marks.
+    * `mcp-extract-plots <component_name>` (component name optional for single
+      component submissions).  Edit `marked/plot_nbs.ipynb` to add marks.
     * Run auto-grading with `mcp-grade-nbs <component_name>`
       (`<component_name>`) is optional if a single component.
     * Review `<component>/marking/autograde.md`.
