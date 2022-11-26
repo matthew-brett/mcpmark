@@ -47,7 +47,10 @@ def get_parser():
 
 def main():
     args, config = get_component_config(get_parser())
-    plot_qs = config['components'][args.component]['plot_qs']
+    plot_qs = config['components'][args.component].get('plot_qs')
+    if plot_qs is None:
+        print('No plot questions')
+        return
     nb_path = component_path(config, args.component)
     lexts = args.nb_lext if args.nb_lext else ['.rmd', '.ipynb']
     nb_fnames = get_notebooks(nb_path,

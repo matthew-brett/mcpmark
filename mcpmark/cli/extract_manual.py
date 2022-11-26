@@ -63,7 +63,10 @@ def get_parser():
 
 def main():
     args, config = get_component_config(get_parser())
-    ex_labels = config['components'][args.component]['manual_qs']
+    ex_labels = config['components'][args.component].get('manual_qs')
+    if ex_labels is None:
+        print('No manual questions')
+        return
     nb_path = component_path(config, args.component)
     lexts = args.nb_lext if args.nb_lext else ['.rmd', '.ipynb']
     nb_fnames = get_notebooks(nb_path,
