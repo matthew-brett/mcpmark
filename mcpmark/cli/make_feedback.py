@@ -3,12 +3,14 @@
 
 import os
 import os.path as op
+from pathlib import Path
 import shutil
 from glob import glob
 from functools import partial
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 from nbconvert.preprocessors import ExecutePreprocessor
+from nbconvert import PDFExporter
 
 import jupytext
 
@@ -39,9 +41,8 @@ def run_nb(nb_fname):
     jupytext.write(nb, out_nb_fname, fmt='ipynb')
 
 
-def write_solution(nb_path, out_fname):
+def write_solution(nb_path, out_dir):
     in_nb_dir, in_nb_root = op.split(nb_path)
-    out_dir = op.dirname(out_fname)
     component_dir, component_name = op.split(in_nb_dir)
     ok_root = component_name + '.ok'
     ok_out = op.join(out_dir, ok_root)
@@ -89,21 +90,35 @@ class Solution:
 SOLUTION = Solution()
 
 
-def fb_path_maker(root_path, handler):
+class FBPath:
 
-    def maker(fname):
+    def __init__(self, root_path, handler=None):
+        self.root_path = root_path
+        self.handler = handler
+
+    def __call__(self, fname):
         in_nb_dir, in_nb_root = op.split(fname)
         login_id, ext = op.splitext(in_nb_root)
         component_dir, component_name = op.split(in_nb_dir)
-        jh_user = handler.login2jh(login_id)
-        login_id, ext = op.splitext(in_nb_root)
-        return op.join(root_path,
+        jh_user = self.handler.login2jh(login_id)
+        return op.join(self.root_path,
                        jh_user,
                        'marking',
                        component_name,
                        component_name + ext)
 
-    return maker
+
+class ExtPath(FBPath):
+
+    def __call__(self, fname):
+        in_nb_dir, in_nb_root = op.split(fname)
+        login_id, ext = op.splitext(in_nb_root)
+        component_dir, component_name = op.split(in_nb_dir)
+        uuid = self.handler.login2uuid(login_id)
+        return op.join(self.root_path,
+                       uuid,
+                       component_name,
+                       component_name + ext)
 
 
 def mod_path_maker(root_path):
@@ -122,10 +137,26 @@ def write_component(component_path, pth_maker):
     nbs = get_notebooks(component_path, lexts=('.rmd',))
     for nb_fname in nbs:
         out_nb_fname = pth_maker(nb_fname)
-        write_solution(nb_fname, out_nb_fname)
+        write_solution(nb_fname, op.dirname(out_nb_fname))
         shutil.copyfile(nb_fname, out_nb_fname)
         run_nb(out_nb_fname)
         nbs_written.append(out_nb_fname)
+    return nbs_written
+
+
+def write_pdfs(component_path, pth_maker):
+    nbs_written = []
+    nbs = get_notebooks(component_path, lexts=('.rmd',))
+    pdf_exporter = PDFExporter()
+    for nb_fname in nbs:
+        nb = execute_nb_fname(nb_fname)
+        out_pdf_pth = Path(pth_maker(nb_fname)).with_suffix('.pdf')
+        out_dir = out_pdf_pth.parent
+        if not out_dir.is_dir():
+            out_dir.mkdir(parents=True)
+        pdf_data, resources = pdf_exporter.from_notebook_node(nb)
+        out_pdf_pth.write_bytes(pdf_data)
+        nbs_written.append(str(out_pdf_pth))
     return nbs_written
 
 
@@ -189,9 +220,9 @@ def main():
                                         multi_component=True,
                                         component_default='all')
     handler = make_submission_handler(config)
-    type2func = {'feedback': partial(fb_path_maker,
-                                     handler=handler),
-                 'moderation': mod_path_maker}
+    type2func = {'feedback': partial(FBPath, handler=handler),
+                 'moderation': mod_path_maker,
+                 'external': partial(ExtPath, handler=handler)}
     if not args.type in type2func:
         raise RuntimeError('type must be one of ' +
                            ', '.join(type2func))
@@ -200,6 +231,9 @@ def main():
     pth_maker = type2func[args.type](root_path)
     for component in config['components']:
         component_path = get_component_path(config, component)
+        if args.type == 'external':
+            write_pdfs(component_path, pth_maker)
+            continue
         out_nbs = write_component(component_path, pth_maker)
         clean_nb_dirs(out_nbs)
         if args.type == 'moderation' and out_nbs:

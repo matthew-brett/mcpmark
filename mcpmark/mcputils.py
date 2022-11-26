@@ -101,6 +101,9 @@ class SubmissionHandler:
     def login2jh(self, login):
         return login
 
+    def login2uuid(self, login):
+        return login
+
 
 class CanvasHandler(SubmissionHandler):
 
@@ -136,9 +139,12 @@ class AttendHandler(SubmissionHandler):
             raise ValueError('Need `github_users_path` in config')
         df = pd.read_csv(config['github_users_path'])
         self.gh_users = df.loc[:, ['Email', 'gh_user']]
+        self._def_student_data = self.read_student_data()
 
     def get_student_id(self, fname, df):
-        if isinstance(df, (types.NoneType, str)):
+        if df is None:
+            df = self._def_student_data
+        elif isinstance(df, str):
             df = self.read_student_data(df)
         name, email = attend_fn2info(fname)
         rows = df[df['Email'] == email]
@@ -162,6 +168,16 @@ class AttendHandler(SubmissionHandler):
 
     def login2jh(self, login):
         return login.lower().replace('-', '-2d')
+
+    def login2uuid(self, login):
+        df = self._def_student_data
+        login_col = self.config['student_id_col']
+        rows = df[df[login_col] == login]
+        if len(rows) == 0:
+            raise ValueError(f'No rows for login {login}')
+        if len(rows) > 1:
+            raise ValueError(f'More than one row for login {login}')
+        return str(rows.iloc[0].name)
 
 
 def make_submission_handler(config):
