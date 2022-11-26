@@ -186,7 +186,8 @@ def get_parser():
 
 def main():
     args, config = get_component_config(get_parser(),
-                                        multi_component=True)
+                                        multi_component=True,
+                                        component_default='all')
     handler = make_submission_handler(config)
     type2func = {'feedback': partial(fb_path_maker,
                                      handler=handler),

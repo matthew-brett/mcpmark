@@ -500,7 +500,8 @@ def get_component_config(parser,
                          def_config='assign_config.yaml',
                          argv=None,
                          multi_component=False,
-                         component_default='error'):
+                         component_default='error',
+                         component_as_option=False):
     """ Use `parser` to collect config and component name
 
     Add "component" and "--config-path" arguments to parser, parse arguments.
@@ -523,6 +524,9 @@ def get_component_config(parser,
         Applies only if "component" argument not specified, and multiple
         components exist.  In that case, and this set to `error`, then raise a
         ``ValueError``.   If `all`, set components arg to be all components.
+    component_as_option : {False, True}, optional
+        If True add ``component`` parameter as positional argument, otherwise,
+        add as option.
 
     Returns
     -------
@@ -538,7 +542,8 @@ def get_component_config(parser,
     comp_nargs, comp_msg, comp_suff = (
         ('*', 'one or more components', 's') if multi_component else
         ('?', 'component', ''))
-    parser.add_argument('component', nargs=comp_nargs,
+    parser.add_argument(('--' if component_as_option else '') + 'component',
+                        nargs=comp_nargs,
                         help='Component name')
     parser.add_argument('--config-path',
                         default=op.join(os.getcwd(), def_config),
