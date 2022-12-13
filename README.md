@@ -13,15 +13,15 @@ in a utility library.
 
 ## Quickstart
 
-For single component submission:
+### For single component submission:
 
 ```
 mcp-check-unpack
 mcp-prepare-components
-mcp-find-duplicates components/strings_and_vars/*.Rmd
+mcp-find-duplicates components/*/*.Rmd
 mcp-cp-models
-mcp-run-notebooks components/strings_and_vars
 mcp-extract-manual
+mcp-run-notebooks components/strings_and_vars
 mcp-extract-plots
 mcp-grade-nbs
 # Review `<component>/marking/autograde.md`.
@@ -29,6 +29,23 @@ mcp-grade-component
 mcp-scale-combine
 ```
 
+### For multiple component submission:
+
+```
+mcp-check-unpack
+mcp-prepare-components
+mcp-find-duplicates components/*/*.Rmd
+mcp-cp-models
+# For each component
+    mcp-extract-manual my-component
+    mcp-run-notebooks components/my_component
+    mcp-extract-plots my_component
+    mcp-grade-nbs my_component
+    # Review `<component>/marking/autograde.md`.
+    mcp-grade-component my_component
+# Finally
+mcp-scale-combine
+```
 
 ## Getting set up
 
@@ -114,7 +131,7 @@ pytest mcpmark
       Consider running this with e.g. `rerun mcp-run-notebooks
       components/pandering` to continuously test notebooks.
     * Move any irreparable notebooks to `broken` directory, and mark in
-      `broken.csv` file.
+      `marking/broken.csv` file.
     * `mcp-extract-manual <component_name>` (component name optional for single
       component submissions). Edit notebooks where manual component not found.
       Maybe e.g. `rerun mcp-extract-manual pandering`.
