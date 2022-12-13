@@ -193,6 +193,30 @@ def write_marking(component_path, out_nb_path):
                     out_marking)
 
 
+def summarize_marking(config, component_path, nbs, out_nbs):
+    login_col = config['student_id_col']
+    in_marking = Path(component_path) / 'marking'
+    component_marks = pd.read_csv(in_marking / 'component.csv')
+    for nb, out_nb in zip(nbs, out_nbs):
+        _, login, _ = fname2login_ext(nb)
+        rows = component_marks[component_marks[login_col] == login]
+        if len(rows) == 0:
+            raise ValueError(f"Failed to find login {login}")
+        if len(rows) > 1:
+            raise ValueError(f"Too many rows for login {login}")
+        row = rows.iloc[0]
+        mark_pth = Path(out_nb).parent / 'component_mark.md'
+        mark_pth.write_text(f"""\
+# Mark summary for this notebook
+
+**Note**: final total marks rounded to nearest whole mark.
+
+Mark: {row['Mark']}
+""")
+
+
+
+
 def clean_nb_dirs(nb_fnames):
     written_paths = set(op.dirname(fn) for fn in nb_fnames)
     for wp in written_paths:
@@ -233,10 +257,15 @@ def main():
         if args.type == 'external':
             write_pdfs(component_path, pth_maker)
             continue
-        out_nbs = write_component(component_path, pth_maker)
+        nbs = get_notebooks(component_path, lexts=('.rmd',))
+        out_nbs = [pth_maker(f) for f in nbs]
+        write_component(component_path, nbs, out_nbs)
         clean_nb_dirs(out_nbs)
+        out_nb_path = op.dirname(out_nbs[-1])
         if args.type == 'moderation' and out_nbs:
-            write_marking(component_path, op.dirname(out_nbs[-1]))
+            write_marking(component_path, out_nb_path)
+        else:
+            summarize_marking(config, component_path, nbs, out_nbs)
 
 
 if __name__ == '__main__':
