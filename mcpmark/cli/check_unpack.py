@@ -4,58 +4,11 @@
 
 import os
 import os.path as op
-import shutil
-from zipfile import ZipFile, BadZipFile
-from fnmatch import fnmatch
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from glob import glob
 
-from gradools import canvastools as ct
 
 from ..mcputils import read_config, make_submission_handler
-
-
-BAD_GLOBS = ['__pycache__', '__MACOSX', '.*']
-
-
-def check_unpack(config, fnames, out_path, df, clobber=False):
-    known = set()
-    for fname in fnames:
-        out_dir = check_unpack1(config, fname, out_path, df, clobber, known)
-        print(f'Unpacked {fname} to {out_dir}')
-
-
-def check_unpack1(config, fname, out_path, df, clobber, known):
-    name1, name2, id_no = ct.fname2key(fname)
-    assert name2 == ''
-    st_login = df.loc[int(id_no), config['student_id_col']]
-    assert st_login not in known
-    this_out = op.join(out_path, st_login)
-    if op.isdir(this_out):
-        if not clobber:
-            raise RuntimeError(f'Unpacking {fname} failed because '
-                               f'directory "{this_out}" exists')
-        shutil.rmtree(this_out)
-    os.makedirs(this_out)
-    try:
-        with ZipFile(fname, 'r') as zf:
-            zf.extractall(path=this_out)
-    except BadZipFile as e:
-        raise RuntimeError(f"Could not extract from {fname} with error:\n"
-                           f"{e}")
-    # Clean extracted files.
-    for root, dirs, files in os.walk(this_out):
-        ok_dirs = []
-        for d in dirs:
-            if not any(fnmatch(d, g) for g in BAD_GLOBS):
-                ok_dirs.append(d)
-            else:
-                shutil.rmtree(op.join(root, d))
-        dirs[:] = ok_dirs
-        for fn in files:
-            if fn.startswith('.'):
-                os.unlink(op.join(root, fn))
-    return this_out
 
 
 def get_parser():

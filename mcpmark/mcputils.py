@@ -6,7 +6,8 @@ import os.path as op
 from pathlib import Path
 import re
 import shutil
-import types
+from fnmatch import fnmatch
+from zipfile import ZipFile, BadZipFile
 
 import yaml
 import numpy as np
@@ -63,6 +64,8 @@ def proc_config(config, config_fname):
 
 class SubmissionHandler:
 
+    BAD_GLOBS = ['__pycache__', '__MACOSX', '.*']
+
     def __init__(self, config):
         self.config = config
 
@@ -97,6 +100,36 @@ class SubmissionHandler:
         for fname in fnames:
             out_dir = self.check_unpack1(fname, out_path, df, clobber, known)
             print(f'Unpacked {fname} to {out_dir}')
+
+    def check_unpack1(self, fname, out_path, df, clobber, known):
+        st_login = self.get_student_id(fname, df)
+        assert st_login not in known
+        this_out = op.join(out_path, st_login)
+        if op.isdir(this_out):
+            if not clobber:
+                raise RuntimeError(f'Unpacking {fname} failed because '
+                                   f'directory "{this_out}" exists')
+            shutil.rmtree(this_out)
+        os.makedirs(this_out)
+        try:
+            with ZipFile(fname, 'r') as zf:
+                zf.extractall(path=this_out)
+        except BadZipFile as e:
+            raise RuntimeError(f"Could not extract from {fname} with error:\n"
+                               f"{e}")
+        # Clean extracted files.
+        for root, dirs, files in os.walk(this_out):
+            ok_dirs = []
+            for d in dirs:
+                if not any(fnmatch(d, g) for g in self.BAD_GLOBS):
+                    ok_dirs.append(d)
+                else:
+                    shutil.rmtree(op.join(root, d))
+            dirs[:] = ok_dirs
+            for fn in files:
+                if fn.startswith('.'):
+                    os.unlink(op.join(root, fn))
+        return this_out
 
     def login2jh(self, login):
         return login
