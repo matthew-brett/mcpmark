@@ -140,7 +140,7 @@ class SubmissionHandler:
 
 class CanvasHandler(SubmissionHandler):
 
-    def get_student_id(self, fname, df):
+    def get_student_id(self, fname, df=None):
         if isinstance(df, (None, str)):
             df = self.read_student_data(df)
         name1, name2, id_no = ct.fname2key(fname)
@@ -174,7 +174,7 @@ class AttendHandler(SubmissionHandler):
         self.gh_users = df.loc[:, ['Email', 'gh_user']]
         self._def_student_data = self.read_student_data()
 
-    def get_student_id(self, fname, df):
+    def get_student_id(self, fname, df=None):
         if df is None:
             df = self._def_student_data
         elif isinstance(df, str):
