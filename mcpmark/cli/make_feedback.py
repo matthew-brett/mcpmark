@@ -252,7 +252,7 @@ def main():
     root_path = args.type if args.out_path is None else args.out_path
     ensure_dir(root_path, args.clobber, args.clobber)
     pth_maker = type2func[args.type](root_path)
-    for component in config['components']:
+    for component in args.component:
         component_path = get_component_path(config, component)
         if args.type == 'external':
             write_pdfs(component_path, pth_maker)
