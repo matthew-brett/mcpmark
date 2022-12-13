@@ -9,6 +9,7 @@ from glob import glob
 from functools import partial
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
+import pandas as pd
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert import PDFExporter
 
@@ -90,15 +91,27 @@ class Solution:
 SOLUTION = Solution()
 
 
-class FBPath:
+def fname2login_ext(fname):
+    in_nb_dir, in_nb_root = op.split(fname)
+    return (in_nb_dir,) + op.splitext(in_nb_root)
+
+
+class ModPath:
 
     def __init__(self, root_path, handler=None):
         self.root_path = root_path
         self.handler = handler
 
     def __call__(self, fname):
-        in_nb_dir, in_nb_root = op.split(fname)
-        login_id, ext = op.splitext(in_nb_root)
+        in_nb_dir, login_id, ext = fname2login_ext(fname)
+        component_dir, component_name = op.split(in_nb_dir)
+        return op.join(self.root_path, component_name, login_id + ext)
+
+
+class FBPath(ModPath):
+
+    def __call__(self, fname):
+        in_nb_dir, login_id, ext = fname2login_ext(fname)
         component_dir, component_name = op.split(in_nb_dir)
         jh_user = self.handler.login2jh(login_id)
         return op.join(self.root_path,
@@ -111,8 +124,7 @@ class FBPath:
 class ExtPath(FBPath):
 
     def __call__(self, fname):
-        in_nb_dir, in_nb_root = op.split(fname)
-        login_id, ext = op.splitext(in_nb_root)
+        in_nb_dir, login_id, ext = fname2login_ext(fname)
         component_dir, component_name = op.split(in_nb_dir)
         uuid = self.handler.login2uuid(login_id)
         return op.join(self.root_path,
@@ -121,22 +133,9 @@ class ExtPath(FBPath):
                        component_name + ext)
 
 
-def mod_path_maker(root_path):
-
-    def maker(fname):
-        in_nb_dir, in_nb_root = op.split(fname)
-        login_id, ext = op.splitext(in_nb_root)
-        component_dir, component_name = op.split(in_nb_dir)
-        return op.join(root_path, component_name, login_id + ext)
-
-    return maker
-
-
-def write_component(component_path, pth_maker):
+def write_component(component_path, nbs, out_nbs):
     nbs_written = []
-    nbs = get_notebooks(component_path, lexts=('.rmd',))
-    for nb_fname in nbs:
-        out_nb_fname = pth_maker(nb_fname)
+    for nb_fname, out_nb_fname in zip(nbs, out_nbs):
         write_solution(nb_fname, op.dirname(out_nb_fname))
         shutil.copyfile(nb_fname, out_nb_fname)
         run_nb(out_nb_fname)
@@ -221,7 +220,7 @@ def main():
                                         component_default='all')
     handler = make_submission_handler(config)
     type2func = {'feedback': partial(FBPath, handler=handler),
-                 'moderation': mod_path_maker,
+                 'moderation': ModPath,
                  'external': partial(ExtPath, handler=handler)}
     if not args.type in type2func:
         raise RuntimeError('type must be one of ' +
