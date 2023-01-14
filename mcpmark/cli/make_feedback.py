@@ -52,8 +52,10 @@ def write_solution(nb_path, out_dir):
     ensure_dir(out_dir)
     # Copy ok file, csv files, tests, solution
     shutil.copyfile(op.join(in_nb_dir, ok_root), ok_out)
-    shutil.copytree(op.join(in_nb_dir, 'tests'),
-                    op.join(out_dir, 'tests'))
+    test_dir = op.join(in_nb_dir, 'tests')
+    if op.isdir(test_dir):
+        shutil.copytree(test_dir,
+                        op.join(out_dir, 'tests'))
     solution_root = component_name + '_solution.ipynb'
     out_solution_fname = op.join(out_dir, solution_root)
     soln_nb = SOLUTION.solution_for_nb(nb_path)
@@ -105,32 +107,26 @@ class ModPath:
     def __call__(self, fname):
         in_nb_dir, login_id, ext = fname2login_ext(fname)
         component_dir, component_name = op.split(in_nb_dir)
-        return op.join(self.root_path, component_name, login_id + ext)
+        return op.join(self.login2out_base(login_id),
+                       component_name,
+                       login_id + ext)
+
+    def login2out_base(self, login):
+        return self.root_path
 
 
 class FBPath(ModPath):
 
-    def __call__(self, fname):
-        in_nb_dir, login_id, ext = fname2login_ext(fname)
-        component_dir, component_name = op.split(in_nb_dir)
+    def login2out_base(self, login_id):
         jh_user = self.handler.login2jh(login_id)
-        return op.join(self.root_path,
-                       jh_user,
-                       'marking',
-                       component_name,
-                       component_name + ext)
+        return op.join(self.root_path, jh_user, 'marking')
 
 
 class ExtPath(FBPath):
 
-    def __call__(self, fname):
-        in_nb_dir, login_id, ext = fname2login_ext(fname)
-        component_dir, component_name = op.split(in_nb_dir)
+    def login2out_base(self, login_id):
         uuid = self.handler.login2uuid(login_id)
-        return op.join(self.root_path,
-                       uuid,
-                       component_name,
-                       component_name + ext)
+        return op.join(self.root_path, uuid)
 
 
 def write_component(component_path, nbs, out_nbs):
@@ -193,28 +189,59 @@ def write_marking(component_path, out_nb_path):
                     out_marking)
 
 
-def summarize_marking(config, component_path, nbs, out_nbs):
+def row4login(df, login_col, login):
+    rows = df[df[login_col] == login]
+    if len(rows) == 0:
+        raise ValueError(f"Failed to find login {login}")
+    if len(rows) > 1:
+        raise ValueError(f"Too many rows for login {login}")
+    return rows.iloc[0]
+
+
+def add_nn(msg):
+    if msg is None:
+        return ''
+    if not msg.endswith('\n'):
+        msg += '\n\n'
+    return msg
+
+
+def summarize_component_marking(config,
+                                component_path,
+                                nbs,
+                                out_nbs,
+                                component_msg=None):
+    component_msg = add_nn(component_msg)
     login_col = config['student_id_col']
     in_marking = Path(component_path) / 'marking'
     component_marks = pd.read_csv(in_marking / 'component.csv')
     for nb, out_nb in zip(nbs, out_nbs):
         _, login, _ = fname2login_ext(nb)
-        rows = component_marks[component_marks[login_col] == login]
-        if len(rows) == 0:
-            raise ValueError(f"Failed to find login {login}")
-        if len(rows) > 1:
-            raise ValueError(f"Too many rows for login {login}")
-        row = rows.iloc[0]
-        mark_pth = Path(out_nb).parent / 'component_mark.md'
-        mark_pth.write_text(f"""\
+        row = row4login(component_marks, login_col, login)
+        comp_mark_pth = Path(out_nb).parent / 'component_mark.md'
+        comp_mark_pth.write_text(f"""\
 # Mark summary for this notebook
 
-**Note**: final total marks rounded to nearest whole mark.
-
-Mark: {row['Mark']}
+{component_msg}Mark: {row['Mark']}
 """)
 
 
+def summarize_final_marks(config,
+                          pth_maker,
+                          final_msg=None):
+    final_msg = add_nn(final_msg)
+    final_marks = pd.read_csv(config['mark_fname'])
+    login_col = config['student_id_col']
+    for row_label, row in final_marks.iterrows():
+        login = row[login_col]
+        base_pth = Path(pth_maker.login2out_base(login))
+        mark_pth = base_pth / 'final_mark.md'
+        final_row = row4login(final_marks, login_col, login)
+        mark_pth.write_text(f"""\
+# Scaled mark summary for all components
+
+{final_msg}Final mark: {final_row['Total']}
+""")
 
 
 def clean_nb_dirs(nb_fnames):
@@ -235,6 +262,10 @@ def get_parser():
                         help='"feedback" or "moderation"')
     parser.add_argument('--clobber', action='store_true',
                         help='Whether to overwrite "out_path"')
+    parser.add_argument('--component-msg',
+                        help='Message in component feedback')
+    parser.add_argument('--final-msg',
+                        help='Message in overall feedback')
     return parser
 
 
@@ -265,7 +296,16 @@ def main():
         if args.type == 'moderation' and out_nbs:
             write_marking(component_path, out_nb_path)
         else:
-            summarize_marking(config, component_path, nbs, out_nbs)
+            summarize_component_marking(
+                config,
+                component_path,
+                nbs,
+                out_nbs,
+                args.component_msg)
+    if args.type == 'feedback':
+        summarize_final_marks(config,
+                              pth_maker,
+                              args.final_msg)
 
 
 if __name__ == '__main__':
