@@ -36,6 +36,8 @@ def process_components(config):
         series[name] = df['Mark'] * info['scaled_to'] / info['actual_max']
     final = pd.DataFrame(series)
     total = final.sum(axis=1)
+    if config.get('round_final'):
+        total = round(total)
     final['Percent'] = total / scaled_max * 100
     final['Total'] = total
     return final
