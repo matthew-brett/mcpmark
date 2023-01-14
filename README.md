@@ -16,15 +16,18 @@ in a utility library.
 ### For single component submission:
 
 ```
+COMPONENTS_DIR=components
 mcp-check-unpack
 mcp-prepare-components
-mcp-find-duplicates components/*/*.Rmd
+mcp-find-duplicates $COMPONENTS_DIR/*/*.Rmd
 mcp-cp-models
 mcp-extract-manual
-mcp-run-notebooks components/strings_and_vars
+rnbg-allow-raise $COMPONENTS_DIR/*/*.Rmd --show-error
 mcp-extract-plots
 mcp-grade-nbs
 # Review `<component>/marking/autograde.md`.
+# Rerun after any edits.
+mcp-grade-nbs
 mcp-grade-component
 mcp-scale-combine
 ```
@@ -32,17 +35,21 @@ mcp-scale-combine
 ### For multiple component submission:
 
 ```
+COMPONENTS_DIR=components
 mcp-check-unpack
 mcp-prepare-components
-mcp-find-duplicates components/*/*.Rmd
+mcp-find-duplicates $COMPONENTS_DIR/*/*.Rmd
 mcp-cp-models
 # For each component
-    mcp-extract-manual my-component
-    mcp-run-notebooks components/my_component
-    mcp-extract-plots my_component
-    mcp-grade-nbs my_component
-    # Review `<component>/marking/autograde.md`.
-    mcp-grade-component my_component
+    COMPONENT=my_component
+    rnbg-allow-raise $COMPONENTS_DIR/$COMPONENT/*.Rmd --show-error
+    mcp-grade-nbs $COMPONENT
+    # Review `$COMPONENT/marking/autograde.md`.
+    # Rerun after any edits.
+    mcp-grade-nbs $COMPONENT
+    mcp-extract-manual $COMPONENT
+    mcp-extract-plots $COMPONENT
+    mcp-grade-component $COMPONENT
 # Finally
 mcp-scale-combine
 ```
