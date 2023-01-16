@@ -7,6 +7,7 @@ from pathlib import Path
 import shutil
 from glob import glob
 from functools import partial
+from warnings import warn
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 
 import pandas as pd
@@ -244,6 +245,21 @@ def summarize_final_marks(config,
 """)
 
 
+def cp_if(in_path, out_path):
+    if in_path.is_file():
+        shutil.copy2(in_path, out_path)
+    else:
+        warn(f'No file {in_path}')
+
+
+def cp_summaries(config, root_path):
+    in_path = Path(config['base_path'])
+    cp_if(in_path.parent / 'about_marking.md', root_path)
+    cp_if(in_path / 'README.md', root_path)
+    cp_if(in_path / 'criteria.md', root_path)
+    cp_if(in_path / config['mark_fname'], root_path / 'final.csv')
+
+
 def clean_nb_dirs(nb_fnames):
     written_paths = set(op.dirname(fn) for fn in nb_fnames)
     for wp in written_paths:
@@ -302,7 +318,9 @@ def main():
                 nbs,
                 out_nbs,
                 args.component_msg)
-    if args.type == 'feedback':
+    if args.type == 'moderation':
+        cp_summaries(config, root_path)
+    elif args.type == 'feedback':
         summarize_final_marks(config,
                               pth_maker,
                               args.final_msg)
