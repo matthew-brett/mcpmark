@@ -137,6 +137,8 @@ pytest mcpmark
     * Check notebook execution with `mcp-run-notebooks <path_to_notebooks>`.
       Consider running this with e.g. `rerun mcp-run-notebooks
       components/pandering` to continuously test notebooks.
+    * Move any irreparable notebooks to `broken` directory, and mark in
+      `marking/broken.csv` file.
     * `mcp-extract-manual <component_name>` (component name optional for single
       component submissions). Edit notebooks where manual component not found.
       Maybe e.g. `rerun mcp-extract-manual pandering`.

@@ -3,6 +3,8 @@
 
 * Rewrite component notebooks into their own directories.
 * Make Rmd versions of notebooks.
+* Create `broken` subdirectory.
+* Write empty `broken.csv` marks file.
 """
 
 import os
@@ -81,6 +83,7 @@ def main():
     if args.out_path is None:
         args.out_path = op.dirname(args.config_path)
     config = read_config(args.config_path)
+    stid_col = config['student_id_col']
     component_tests = get_component_tests(config)
     component_names = list(component_tests)
     component_base = component_path(config)
@@ -99,8 +102,11 @@ def main():
             if ext.lower() != '.rmd':  # Write Rmd version if necessary.
                 jupytext.write(nb, out_root + '.Rmd', fmt='Rmd')
             create_dirs(component_root,
-                        ['marking'],
+                        ['broken', 'marking'],
                         gitignore=True)
+            broken_fname = op.join(component_root, 'marking', 'broken.csv')
+            with open(broken_fname, 'wt') as fobj:
+                fobj.write(f'{stid_col},Mark\n')
 
 
 if __name__ == '__main__':

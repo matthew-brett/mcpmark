@@ -3,9 +3,12 @@
 
 A student's grade comes from:
 
-* Grades from autograding PLUS
-* Corrections from #M: notations PLUS
-* Grades from plots (if present) PLUS
+* Either:
+    * Grades from autograding PLUS
+    * Corrections from #M: notations
+    * Grades from plots (if present)
+* Or:
+    * Entry in `broken.csv` PLUS
 * Grades from manual answer grading.
 """
 
@@ -71,7 +74,16 @@ def read_autos(config, component):
     return autos
 
 
-def check_parts(autos, plots, manuals):
+def read_broken(config, component):
+    broken_path = op.join(component_path(config, component),
+                          'marking',
+                          'broken.csv')
+    if not op.isfile(broken_path):
+        return {}
+    return read_grades(broken_path, config['student_id_col'], 'Mark')
+
+
+def check_parts(autos, plots, broken, manuals):
     # Autos should have the same keys as plots, if present.
     auto_set = set(autos)
     if len(plots):
@@ -83,29 +95,38 @@ def check_parts(autos, plots, manuals):
                    f'plot only: {plot_only if plot_only else "(none)"}; '
                    f'auto only: {auto_only if auto_only else "(none)"}')
             raise MCPError(msg)
+    # No student should be in both autos and broken
+    if broken:
+        broken_in_autos = auto_set.intersection(broken)
+        if len(broken_in_autos):
+            raise MCPError(f'Broken nbs {", ".join(broken_in_autos)} in auto '
+                           'scores')
+    # Union of autos and broken should be all students.
+    slogins = auto_set.union(broken)
     # Manuals should all have same keys, if present:
     for m in manuals:
-        missing = auto_set.difference(m)
+        missing = slogins.difference(m)
         if missing:
             raise MCPError(f'Missing manual score for {", ".join(missing)}')
-    return sorted(auto_set)
+    return sorted(slogins)
 
 
 def grade_component(config, component):
     autos = read_autos(config, component)
     plots = read_plots(config, component)
+    broken = read_broken(config, component)
     manuals = read_manuals(config, component)
-    logins = check_parts(autos, plots, manuals)
+    logins = check_parts(autos, plots, broken, manuals)
     grades = {}
     for student_id in logins:
         manual_mark = sum(m[student_id] for m in manuals)
-        if student_id not in autos:
-            raise MCPError(
-                f'{student_id} not in autograded logins: {autos}')
-        # check_parts makes sure both exist.
-        nb_mark = autos[student_id]
-        if plots:
-            nb_mark += plots[student_id]
+        if student_id in autos:
+            # check_parts makes sure both exist.
+            nb_mark = autos[student_id]
+            if plots:
+                nb_mark += plots[student_id]
+        else:  # check_parts checks this.
+            nb_mark = broken[student_id]
         grades[student_id] = manual_mark + nb_mark
     return grades
 
