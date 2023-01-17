@@ -1,0 +1,5 @@
+gh_user,auto,auto,auto,auto,auto,auto,auto,auto,annotation,Total
+,q_2_male_counts,q_2_proportions,q_differences,q_m_to_all_ratio,q_outcome_ideal,q_p_gt_0,q_p_males_gte,q_p_props_greater,annotations,
+first_person,1,1,0,1,0,1,1,1,0.0,6.0
+secondperson,0,0,1,1,1,0,1,0,-0.75,3.25
+anotherPerson,0,0,1,0,1,1,1,1,0.0,5.0

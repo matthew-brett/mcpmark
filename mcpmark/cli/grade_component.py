@@ -3,142 +3,129 @@
 
 A student's grade comes from:
 
-* Either:
-    * Grades from autograding PLUS
-    * Corrections from #M: notations
-    * Grades from plots (if present)
-* Or:
-    * Entry in `broken.csv` PLUS
+* Grades from autograding PLUS
+* Corrections from #M: notations PLUS
+* Grades from plots (if present) PLUS
 * Grades from manual answer grading.
 """
 
+from pathlib import Path
 import os.path as op
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
-from glob import glob
+from collections import Counter
 
+import numpy as np
 import pandas as pd
 
 from ..mcputils import (get_component_config, read_manual, get_notebooks, nbs2markups,
                         get_plot_scores, component_path, MCPError)
 
 
+def add_multi(df, heading):
+    if not len(df):
+        return df
+    df = df.copy()
+    cols = [(heading, c) for c in df]
+    df.columns = pd.MultiIndex.from_tuples(cols)
+    return df
+
+
 def read_grades(fname, stid_col, total_col):
     if not op.isfile(fname):
-        return {}
+        return pd.DataFrame()
     df = pd.read_csv(fname)
     return dict(zip(df[stid_col], df[total_col]))
 
 
-def read_plots(config, component):
-    splot_qs = set(config['components'][component].get('plot_qs', []))
-    cp_path = component_path(config, component)
-    plot_fname = op.join(cp_path, 'marking', 'plot_nb.ipynb')
-    if not op.isfile(plot_fname):
+def read_plots(comp_path, plot_qs):
+    splot_qs = set(plot_qs)
+    plot_fname = comp_path / 'marking' / 'plot_nb.ipynb'
+    if not plot_fname.is_file():
         assert len(splot_qs) == 0
-        return {}
+        return pd.DataFrame()
     scores = get_plot_scores(plot_fname)
-    sums = {}
     for login, vs in scores.items():
         missing = splot_qs.difference(vs)
         if missing:
             raise MCPError(
                 f'Plot scores missing for {login}; {", ".join(missing)}')
         assert splot_qs == set(vs)
-        sums[login] = sum(vs.values())
-    return sums
+    return pd.DataFrame(scores).T
 
 
-def read_manuals(config, component):
-    manual_qs = config['components'][component].get('manual_qs', [])
-    mark_path = op.join(component_path(config, component), 'marking')
-    expected_manuals = [op.join(mark_path, f'{q}_report.md')
+def read_manuals(comp_path, manual_qs):
+    mark_path = comp_path / 'marking'
+    expected_manuals = [mark_path / f'{q}_report.md'
                         for q in manual_qs]
-    actual_manuals = glob(op.join(mark_path, '*_report.md'))
+    actual_manuals = mark_path.glob('*_report.md')
     missing = set(expected_manuals).difference(actual_manuals)
     if missing:
         smissing = ', '.join(sorted(missing))
         raise MCPError(f'Expected manual grading {smissing}')
-    return [read_manual(fn)[1] for fn in expected_manuals]
+    scores = [read_manual(fn)[1] for fn in expected_manuals]
+    out = pd.DataFrame(scores).T
+    out.columns = manual_qs
+    return out
 
 
-def read_autos(config, component):
-    cp_path = component_path(config, component)
-    stid_col = config['student_id_col']
+def read_autos(comp_path, stid_col):
     # Read autos file
-    autos = read_grades(op.join(cp_path, 'marking', 'autograde.csv'),
-                        stid_col, 'Total')
+    fname = comp_path / 'marking' / 'autograde.csv'
+    return (pd.read_csv(fname).set_index(stid_col, drop=True)
+            .drop(columns='Total'))
+
+
+def read_annotations(comp_path):
     # Add annotation marks
-    nb_fnames = get_notebooks(cp_path, first_only=True)
+    notes = Counter()
+    nb_fnames = get_notebooks(comp_path, first_only=True)
     for login, mark in nbs2markups(nb_fnames).items():
-        autos[login] += mark
-    return autos
+        notes[login] += mark
+    if not notes:
+        return pd.DataFrame()
+    return pd.DataFrame(pd.Series(notes, name='annotations'))
 
 
-def read_broken(config, component):
-    broken_path = op.join(component_path(config, component),
-                          'marking',
-                          'broken.csv')
-    if not op.isfile(broken_path):
-        return {}
-    return read_grades(broken_path, config['student_id_col'], 'Mark')
-
-
-def check_parts(autos, plots, broken, manuals):
-    # Autos should have the same keys as plots, if present.
-    auto_set = set(autos)
-    if len(plots):
-        plot_set = set(plots)
-        if auto_set != plot_set:
-            auto_only = auto_set.difference(plot_set)
-            plot_only = plot_set.difference(auto_set)
-            msg = ('Plot and auto submissions differ - '
-                   f'plot only: {plot_only if plot_only else "(none)"}; '
-                   f'auto only: {auto_only if auto_only else "(none)"}')
-            raise MCPError(msg)
-    # No student should be in both autos and broken
-    if broken:
-        broken_in_autos = auto_set.intersection(broken)
-        if len(broken_in_autos):
-            raise MCPError(f'Broken nbs {", ".join(broken_in_autos)} in auto '
-                           'scores')
-    # Union of autos and broken should be all students.
-    slogins = auto_set.union(broken)
-    # Manuals should all have same keys, if present:
-    for m in manuals:
-        missing = slogins.difference(m)
-        if missing:
-            raise MCPError(f'Missing manual score for {", ".join(missing)}')
-    return sorted(slogins)
+def check_api_change(comp_path):
+    broken_path = comp_path / 'marking' / 'broken' / 'broken.csv'
+    if not broken_path.is_file():
+        return
+    if not broken_path.read_text().strip():
+        return
+    broken = pd.read_csv(broken_path)
+    if len(broken):
+        raise MCPError(f'Not-empty data for {broken_path}; '
+                       'use mcpmark < 1.0 to grade these directories')
 
 
 def grade_component(config, component):
-    autos = read_autos(config, component)
-    plots = read_plots(config, component)
-    broken = read_broken(config, component)
-    manuals = read_manuals(config, component)
-    logins = check_parts(autos, plots, broken, manuals)
-    grades = {}
-    for student_id in logins:
-        manual_mark = sum(m[student_id] for m in manuals)
-        if student_id in autos:
-            # check_parts makes sure both exist.
-            nb_mark = autos[student_id]
-            if plots:
-                nb_mark += plots[student_id]
-        else:  # check_parts checks this.
-            nb_mark = broken[student_id]
-        grades[student_id] = manual_mark + nb_mark
-    return grades
-
-
-def write_component_csv(config, component, grades):
-    out_path = component_path(config, component)
+    comp_path = Path(component_path(config, component))
+    check_api_change(comp_path)
     stid_col = config['student_id_col']
-    out_fname = op.join(out_path, 'marking', f'component.csv')
-    with open(out_fname, 'wt') as fobj:
-        fobj.write(f'{stid_col},Mark\n')
-        for login, grade in grades.items():
-            fobj.write(f'{login},{grade}\n')
+    autos = add_multi(read_autos(comp_path, stid_col), 'auto')
+    annotations = add_multi(read_annotations(comp_path), 'annotation')
+    plot_qs = config['components'][component].get('plot_qs', [])
+    plots = add_multi(read_plots(comp_path, plot_qs), 'plots')
+    manual_qs = config['components'][component].get('manual_qs', [])
+    manuals = add_multi(read_manuals(comp_path, manual_qs), 'manual')
+    start = autos.copy()
+    for df in [plots, manuals]:
+        if len(df):
+            start = start.join(df, how='outer')
+    assert not np.any(np.isnan(start))
+    # THere may be no annotations
+    if len(annotations):
+        start = start.join(annotations, how='left')
+    start = start.fillna(0)
+    return start
+
+
+def write_component_csv(config, component, marks):
+    marks['Total'] = marks.sum(axis=1)
+    marks = marks.reset_index()
+    out_path = Path(component_path(config, component))
+    out_fname = out_path / 'marking' / 'component.csv'
+    marks.to_csv(out_fname, index=None)
     return out_fname
 
 
@@ -152,7 +139,7 @@ def main():
     args, config = get_component_config(get_parser())
     grades = grade_component(config, args.component)
     out_csv = write_component_csv(config, args.component, grades)
-    print(pd.read_csv(out_csv).describe())
+    print(pd.read_csv(out_csv)['Total'].describe())
 
 
 if __name__ == '__main__':
