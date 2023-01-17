@@ -86,8 +86,17 @@ def read_annotations(comp_path):
     return pd.DataFrame(pd.Series(notes, name='annotations'))
 
 
+def check_api_change(comp_path):
+    broken_path = comp_path / 'marking' / 'broken' / 'broken.csv'
+    broken = pd.read_csv(broken_path)
+    if len(broken):
+        raise MCPError(f'Not-empty data for {broken_path}; '
+                       'use mcpmark < 1.0 to grade these directories')
+
+
 def grade_component(config, component):
     comp_path = Path(component_path(config, component))
+    check_api_change(comp_path)
     stid_col = config['student_id_col']
     autos = add_multi(read_autos(comp_path, stid_col), 'auto')
     annotations = add_multi(read_annotations(comp_path), 'annotation')
