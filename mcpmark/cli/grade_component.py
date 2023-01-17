@@ -88,6 +88,10 @@ def read_annotations(comp_path):
 
 def check_api_change(comp_path):
     broken_path = comp_path / 'marking' / 'broken' / 'broken.csv'
+    if not broken_path.is_file():
+        return
+    if not broken_path.read_text().strip():
+        return
     broken = pd.read_csv(broken_path)
     if len(broken):
         raise MCPError(f'Not-empty data for {broken_path}; '
@@ -110,7 +114,8 @@ def grade_component(config, component):
             start = start.join(df, how='outer')
     assert not np.any(np.isnan(start))
     # THere may be no annotations
-    start = start.join(annotations, how='left')
+    if len(annotations):
+        start = start.join(annotations, how='left')
     start = start.fillna(0)
     return start
 

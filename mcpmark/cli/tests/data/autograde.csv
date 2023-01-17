@@ -1,0 +1,4 @@
+gh_user,q_2_male_counts,q_2_proportions,q_differences,q_m_to_all_ratio,q_outcome_ideal,q_p_gt_0,q_p_males_gte,q_p_props_greater,Total
+first_person,1,1,0,1,0,1,1,1,6
+secondperson,0,0,1,1,1,0,1,0,4
+anotherPerson,0,0,1,0,1,1,1,1,5
