@@ -6,6 +6,13 @@ on:
 
 jobs:
   tests:
+    strategy:
+      matrix:
+        include:
+          - python-version: 3.8
+          - python-version: 3.9
+          - python-version: "3.10"
+          - python-version: "3.11"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -13,10 +20,10 @@ jobs:
           submodules: true
       - uses: actions/setup-python@v2
         with:
-          python-version: "3.x"
+          python-version: ${{ matrix.python-version }}
       - name: Install test dependencies
         run: |
-          pip install okpy pytest-cov
+          pip install pytest-cov
       - name: Install mcpmark
         run: |
           pip install flit
