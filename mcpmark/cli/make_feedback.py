@@ -21,6 +21,7 @@ from ..mcputils import (execute_nb_fname, get_notebooks,
                         get_component_config,
                         make_submission_handler,
                         component_path as get_component_path)
+from .scale_combine import read_component
 
 
 def clean_dir(start_path,
@@ -208,23 +209,21 @@ def add_nn(msg):
 
 
 def summarize_component_marking(config,
-                                component_path,
+                                component,
                                 nbs,
                                 out_nbs,
                                 component_msg=None):
     component_msg = add_nn(component_msg)
-    login_col = config['student_id_col']
-    in_marking = Path(component_path) / 'marking'
-    component_marks = pd.read_csv(in_marking / 'component.csv')
+    component_marks = read_component(component, config)
     for nb, out_nb in zip(nbs, out_nbs):
         _, login, _ = fname2login_ext(nb)
-        row = row4login(component_marks, login_col, login)
+        row = component_marks.loc[login].reset_index()
+        row.columns = ['Question type', 'Question', 'Mark']
         comp_mark_pth = Path(out_nb).parent / 'component_mark.md'
         comp_mark_pth.write_text(f"""\
-# Mark summary for this notebook
+# Mark summary for {component} notebook
 
-{component_msg}Mark: {row['Mark']}
-""")
+""" + row.to_markdown(index=None))
 
 
 def summarize_final_marks(config,
@@ -311,13 +310,13 @@ def main():
         out_nb_path = op.dirname(out_nbs[-1])
         if args.type == 'moderation' and out_nbs:
             write_marking(component_path, out_nb_path)
-        else:
-            summarize_component_marking(
-                config,
-                component_path,
-                nbs,
-                out_nbs,
-                args.component_msg)
+            continue
+        summarize_component_marking(
+            config,
+            component,
+            nbs,
+            out_nbs,
+            args.component_msg)
     if args.type == 'moderation':
         cp_summaries(config, root_path)
     elif args.type == 'feedback':
