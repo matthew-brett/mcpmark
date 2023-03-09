@@ -60,7 +60,7 @@ def read_manuals(comp_path, manual_qs):
     actual_manuals = mark_path.glob('*_report.md')
     missing = set(expected_manuals).difference(actual_manuals)
     if missing:
-        smissing = ', '.join(sorted(missing))
+        smissing = ', '.join(sorted([str(m) for m in missing]))
         raise MCPError(f'Expected manual grading {smissing}')
     scores = [read_manual(fn)[1] for fn in expected_manuals]
     out = pd.DataFrame(scores).T
