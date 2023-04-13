@@ -187,11 +187,12 @@ class AttendHandler(SubmissionHandler):
     def read_student_data(self, fname=None):
         fname = self.config['attendance_export_path'] if fname is None else fname
         required = ['StudentId', 'Forename', 'Surname', 'Email',
-                   'gh_user']
+                    'school_user', 'gh_user']
         df = pd.read_excel(fname)
         dtypes = {'StudentId': int}
         for name, dt in dtypes.items():
             df[name] = df[name].astype(dt)
+        df['school_user'] = df['Email'].str.split('@').apply(lambda v : v[0])
         df = df.merge(self.gh_users, on='Email', how='left')
         missing = df['gh_user'].isna()
         if np.any(missing):
