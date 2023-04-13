@@ -252,6 +252,7 @@ def cp_if(in_path, out_path):
 
 
 def cp_summaries(config, root_path):
+    root_path = Path(root_path)
     in_path = Path(config['base_path'])
     cp_if(in_path.parent / 'about_marking.md', root_path)
     cp_if(in_path / 'README.md', root_path)
