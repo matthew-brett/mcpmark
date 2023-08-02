@@ -214,11 +214,40 @@ class AttendHandler(SubmissionHandler):
         return str(rows.iloc[0].name)
 
 
+class CsvHandler(SubmissionHandler):
+
+    def get_student_id(self, fname, df=None):
+        """ Work out student ID from given filename
+        """
+        if isinstance(df, (None, str)):
+            df = self.read_student_data(df)
+        name, email = attend_fn2info(fname)
+        rows = df[df['Email'] == email]
+        assert len(rows) == 1
+        return rows.iloc[0][self.config['student_id_col']]
+
+    def read_student_data(self, fname=None):
+        fname = self.config['user_csv_path'] if fname is None else fname
+        required = ['Name', 'Email', 'school_user', 'gh_user']
+        df = pd.read_csv(fname, comment='#')
+        df['school_user'] = df['Email'].str.split('@').apply(lambda v : v[0])
+        missing = df['gh_user'].isna()
+        if np.any(missing):
+            raise ValueError('Missing gh_user for ' +
+                             ', '.join(df.loc[missing, 'Email']))
+        return df[required].set_index('gh_user', drop=False)
+
+    def login2jh(self, login):
+        return login.lower().replace('-', '-2d')
+
+
 def make_submission_handler(config):
     if 'canvas_export_path' in config:
         return CanvasHandler(config)
     elif 'attendance_export_path' in config:
         return AttendHandler(config)
+    elif 'user_csv_path' in config:
+        return CsvHandler(config)
     else:
         raise ValueError('No Canvas or Attendance path')
 
