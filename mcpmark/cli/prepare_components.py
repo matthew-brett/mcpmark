@@ -45,10 +45,14 @@ def get_component_tests(config):
 def expected_student_dirs(config):
     df = get_minimal_df(config)
     stid_col = config['student_id_col']
+    known_submitters = config.get('known_submitters', [])
+    known_missing = config.get('known_missing', [])
     dir_names = []
     for i_val, row in df.iterrows():
         student_id = row.loc[stid_col]
-        if student_id not in config['known_missing']:
+        if known_submitters and student_id not in known_submitters:
+            continue
+        if student_id not in known_missing:
             dir_names.append(student_id)
     assert len(set(dir_names)) == len(dir_names)  # Unique check
     return dir_names
