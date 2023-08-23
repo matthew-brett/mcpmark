@@ -48,7 +48,9 @@ mcp-cp-models
     # Rerun after any edits.
     mcp-grade-nbs $COMPONENT
     mcp-extract-manual $COMPONENT
+    # Mark manual questions in $COMPONENT/marking/*_report.md files
     mcp-extract-plots $COMPONENT
+    # Mark plot questions in $COMPONENT/marking/plot_nb.ipynb file
     mcp-grade-component $COMPONENT
 # Finally
 mcp-scale-combine
