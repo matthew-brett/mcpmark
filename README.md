@@ -42,9 +42,9 @@ mcp-find-duplicates $COMPONENTS_DIR/*/*.Rmd
 mcp-cp-models
 # For each component
     COMPONENT=my_component
-    rnbg-allow-raise $COMPONENTS_DIR/$COMPONENT/*.Rmd --show-error
+    mcp-allow-raise $COMPONENT
     mcp-grade-nbs $COMPONENT
-    # Review `$COMPONENT/marking/autograde.md`.
+    # Review `$COMPONENTS_DIR/$COMPONENT/marking/autograde.md`.
     # Rerun after any edits.
     mcp-grade-nbs $COMPONENT
     mcp-extract-manual $COMPONENT
