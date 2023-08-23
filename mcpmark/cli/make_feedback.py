@@ -256,7 +256,8 @@ def cp_summaries(config, root_path):
     in_path = Path(config['base_path'])
     cp_if(in_path.parent / 'about_marking.md', root_path)
     cp_if(in_path / 'README.md', root_path)
-    cp_if(in_path / 'criteria.md', root_path)
+    for crit_path in in_path.glob('*criteria.md'):
+        cp_if(crit_path, root_path)
     cp_if(in_path / config['mark_fname'], root_path / 'final.csv')
 
 
