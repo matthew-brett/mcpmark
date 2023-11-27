@@ -156,6 +156,12 @@ class CanvasHandler(SubmissionHandler):
         required = ('ID', 'Student', 'SIS User ID', 'SIS Login ID', 'Section')
         dtypes = {'ID': int, 'SIS User ID': int}
         df = ct.to_minimal_df(fname, required, dtypes)
+        if 'github_users_path' in self.config:
+            df['Email'] = df['SIS Login ID'].str.lower()
+            gh_users = pd.read_csv(self.config['github_users_path'])
+            df = df.merge(gh_users[['gh_user', 'Email']],
+                                   on='Email',
+                                   how='left')
         return df.set_index('ID')
 
 
