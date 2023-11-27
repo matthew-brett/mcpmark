@@ -55,11 +55,9 @@ def strip_header(contents, header):
         header = deepcopy(header)
         del header['jupyter']['otter']
     return YAML_BLOCK.sub(
-        f"""\
----
-{yaml.dump(header)}
----
-""", contents, count=1)
+        f"---\n{yaml.dump(header)}---\n",
+        contents,
+        count=1)
 
 
 GRADER_RE = re.compile(
