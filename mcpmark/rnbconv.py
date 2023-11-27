@@ -154,10 +154,10 @@ def get_parser():
 def main():
     parser = get_parser()
     args = parser.parse_args()
-    out_path = Path(args.out_path) if args.out_path else None
+    args.out_path = Path(args.out_path) if args.out_path else None
     for nb_fname in args.notebook_fnames:
         nb_path = Path(nb_fname)
-        out_path = nb_path.parent if out_path is None else out_path
+        out_path = nb_path.parent if args.out_path is None else args.out_path
         convert(nb_path, out_path, tests=args.tests, ok=args.ok)
 
 
