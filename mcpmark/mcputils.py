@@ -7,6 +7,7 @@ from pathlib import Path
 import re
 import shutil
 from fnmatch import fnmatch
+from functools import partial
 from zipfile import ZipFile, BadZipFile
 
 import yaml
@@ -654,3 +655,25 @@ def get_component_config(parser,
                 f'Component{comp_suff} "{args.component}" must be in ' +
                 ', '.join(comp_names))
     return args, config
+
+
+def has_md_text(nb, cell_regex, flags=None):
+    """ True if notebook `nb` has Markdown text matching `cell_regex`
+    """
+    flags = re.I if flags is None else flags
+    if not hasattr(cell_regex, 'pattern'):
+        cell_regex = re.compile(cell_regex, flags=flags)
+    for cell in nb.cells:
+        if cell['cell_type'] != 'markdown' or not 'source' in cell:
+            continue
+        if cell_regex.search(cell['source'].lower()):
+            return True
+    return False
+
+
+def has_md_text_component(nb, nb_path, cell_regex, flags=None):
+    return nb_path if has_md_text(nb, cell_regex) else None
+
+
+def has_md_checker(cell_regex, flags=None):
+    return partial(has_md_text_component, cell_regex=cell_regex)

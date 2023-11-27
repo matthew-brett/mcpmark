@@ -15,7 +15,7 @@ import shutil
 import jupytext
 
 from ..mcputils import (read_config, get_minimal_df, get_notebooks,
-                       component_path, MCPError)
+                       component_path, MCPError, has_md_checker)
 
 
 def get_component_nbs(in_dir, component_tests):
@@ -38,10 +38,26 @@ def get_component_nbs(in_dir, component_tests):
 
 
 def get_component_tests(config):
+    # component_scrip_path overrides regex in components.
+    if (csp := config.get('component_script_path')):
+        return comp_tests_from_script(Path(csp))
+    # Should be on regex in each component
+    tests = {}
+    for name, info in config['components'].items():
+        if not 'regex' in info:
+            raise MCPError(
+                'Need either component_script_path or regex field '
+                'for each component')
+        tests[name] = has_md_checker(info['regex'],
+                                     flags=re.I | re.MULTILINE)
+    return tests
+
+
+def comp_tests_from_script(c_script_path):
     ns = {}
-    with open(config['component_script_path'], 'rt') as fobj:
-        exec(fobj.read(), ns)
+    exec(c_script_path.read_text(), ns)
     return ns['COMPONENT_TESTS']
+
 
 
 def expected_student_dirs(config):
