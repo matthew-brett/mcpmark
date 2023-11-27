@@ -142,6 +142,9 @@ class SubmissionHandler:
 class CanvasHandler(SubmissionHandler):
 
     def get_student_id(self, fname, df=None):
+        if self.config.get('anonymous'):
+            name = Path(fname).name
+            return name.split('_')[2 if name.startswith('LATE_') else 1]
         if isinstance(df, (None, str)):
             df = self.read_student_data(df)
         name1, name2, id_no = ct.fname2key(fname)
