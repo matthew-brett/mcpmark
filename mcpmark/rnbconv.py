@@ -158,7 +158,7 @@ def main():
     for nb_fname in args.notebook_fnames:
         nb_path = Path(nb_fname)
         out_path = nb_path.parent if out_path is None else out_path
-        convert(Path(nb_fname), out_path, tests=args.tests, ok=args.ok)
+        convert(nb_path, out_path, tests=args.tests, ok=args.ok)
 
 
 if __name__ == '__main__':
