@@ -2,6 +2,8 @@
 """ Print results of grading notebook
 """
 
+# This should mostly be refactored to use oktools
+
 import os
 import os.path as op
 from glob import glob
