@@ -133,7 +133,7 @@ class SubmissionHandler:
         return this_out
 
     def login2jh(self, login):
-        return login
+        return login.lower().replace('-', '-2d')
 
     def login2uuid(self, login):
         return login
@@ -210,9 +210,6 @@ class AttendHandler(SubmissionHandler):
                              ', '.join(df.loc[missing, 'Email']))
         return df[required].set_index('StudentId')
 
-    def login2jh(self, login):
-        return login.lower().replace('-', '-2d')
-
     def login2uuid(self, login):
         df = self._def_student_data
         login_col = self.config['student_id_col']
@@ -246,9 +243,6 @@ class CsvHandler(SubmissionHandler):
             raise ValueError('Missing gh_user for ' +
                              ', '.join(df.loc[missing, 'Email']))
         return df[required].set_index('gh_user', drop=False)
-
-    def login2jh(self, login):
-        return login.lower().replace('-', '-2d')
 
 
 def make_submission_handler(config):
