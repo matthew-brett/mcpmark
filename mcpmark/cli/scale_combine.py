@@ -47,7 +47,9 @@ def process_components(config):
     total = final.sum(axis=1)
     if config.get('round_final'):
         total = round(total)
-    final['Percent'] = total / scaled_max * 100
+    percent = total / scaled_max * 100
+    final['Percent'] = (round(percent) if config.get('round_percent')
+                        else percent)
     final['Total'] = total
     return final.reset_index().rename(
         columns={'index': config['student_id_col']})
