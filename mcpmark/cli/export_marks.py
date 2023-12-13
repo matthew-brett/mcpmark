@@ -15,7 +15,7 @@ from ..mcputils import get_minimal_df, read_config
 def write_exports(config, out_dir):
     login_fn = config['student_id_col']
     template = ct.to_minimal_df(config['canvas_export_path'])
-    ass_col = config['assignment_name']
+    ass_col = config['canvas_assignment_name']
     out_cols = list(template) + [ass_col]
     in_fname = config['mark_fname']
     in_df = get_minimal_df(config)[[login_fn, ct.CANVAS_ID_COL]]

@@ -131,6 +131,16 @@ class ExtPath(FBPath):
         return op.join(self.root_path, uuid)
 
 
+def write_spec(component_path, spec):
+
+
+def write_data(component_path, data_specs):
+    written = []
+    for spec in data_specs:
+        written += write_spec(component_path, spec)
+    return written
+
+
 def write_component(component_path, nbs, out_nbs):
     nbs_written = []
     for nb_fname, out_nb_fname in zip(nbs, out_nbs):
@@ -307,6 +317,7 @@ def main():
             continue
         nbs = get_notebooks(component_path, lexts=('.rmd',))
         out_nbs = [pth_maker(f) for f in nbs]
+        write_data(component_path, component.get('data_files', []))
         write_component(component_path, nbs, out_nbs)
         clean_nb_dirs(out_nbs)
         out_nb_path = op.dirname(out_nbs[-1])
