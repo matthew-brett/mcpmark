@@ -32,8 +32,11 @@ def read_header(contents):
 
 def proc_tests(test_dict):
     out = deepcopy(test_dict)
-    for suite in out['suites']:
-        for case in suite['cases']:
+    # Delete null points, accepting default.
+    if 'points' in out and out['points'] is None:
+        out.pop('points')
+    for suite in out.get('suites', []):
+        for case in suite.get('cases', []):
             # Remove not-accepted keyword arg.
             case.pop('points', 0)
     return out
