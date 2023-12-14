@@ -23,8 +23,16 @@ def test_header(tmp_path):
         mcr.read_header("Some text")
 
 
+def _read_test(pth):
+    ws = {}
+    exec(pth.read_text(), ws)
+    test = ws.pop('test')
+    assert list(ws) == ['__builtins__']
+    return test
+
+
 def test_test2testfile(tmp_path):
-    test = {
+    in_test = {
         'name': 'q1a',
         'points': 1,
         'suites': [
@@ -38,11 +46,11 @@ def test_test2testfile(tmp_path):
           'type': 'doctest'}
         ]
     }
-    test_path = mcr.test2testfile(test, tmp_path)
+    test_path = mcr.test2testfile(in_test, tmp_path)
     assert test_path.name == 'q1a.py'
-    ws = {}
-    exec(test_path.read_text(), ws)
-    assert 'test' in ws
+    out_test = _read_test(test_path)
+    # Test not modified.
+    assert in_test == out_test
 
 
 def test_t2f_none(tmp_path):
@@ -69,9 +77,7 @@ def test_t2f_none(tmp_path):
         ]}
     test_path = mcr.test2testfile(in_test, tmp_path)
     assert test_path.name == test_name + '.py'
-    ws = {}
-    exec(test_path.read_text(), ws)
-    out_test = ws['test']
+    out_test = _read_test(test_path)
     # null points removed.
     assert 'points' not in out_test
     # Otherwise, as input.
