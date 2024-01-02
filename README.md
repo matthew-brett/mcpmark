@@ -8,8 +8,8 @@ The notebooks may have questions for manual marking, and plots for marking.
 They assume some Canvas](https://www.instructure.com/canvas) conventions of
 naming files, and grade output CSV format.
 
-The tools consist primarily command line utilities, with some supporting code
-in a utility library.
+The tools are mainly command line utilities, with some supporting code in
+a utility library.
 
 ## Quickstart
 
@@ -22,7 +22,7 @@ mcp-prepare-components
 mcp-find-duplicates $COMPONENTS_DIR/*/*.Rmd
 mcp-cp-models
 mcp-extract-manual
-rnbg-allow-raise $COMPONENTS_DIR/*/*.Rmd --show-error
+mcp-allow-raise
 mcp-extract-plots
 mcp-grade-nbs
 # Review `<component>/marking/autograde.md`.

@@ -10,6 +10,9 @@ import pandas as pd
 from ..mcputils import read_config, component_path, MCPError
 
 
+TINY = 1e-15
+
+
 def read_component(name, config):
     return read_component_csv(Path(component_path(config, name)) /
                               'marking' /
@@ -45,10 +48,10 @@ def process_components(config):
         df = read_component(name, config)
         final[name] = df['Total'] * info['scaled_to'] / info['actual_max']
     total = final.sum(axis=1)
-    if config.get('round_final'):
-        total = round(total)
+    if config.get('round_final') or config.get('round_total'):
+        total = round(total + TINY)
     percent = total / scaled_max * 100
-    final['Percent'] = (round(percent) if config.get('round_percent')
+    final['Percent'] = (round(percent + TINY) if config.get('round_percent')
                         else percent)
     final['Total'] = total
     return final.reset_index().rename(
