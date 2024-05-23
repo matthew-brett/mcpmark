@@ -15,6 +15,7 @@ dynamic = ["version", "description"]
 requires = [
     'gradools',
     'rnbgrader>=0.2',
+    'pyyaml'
 ]
 requires-python = ">=3.8"
 
