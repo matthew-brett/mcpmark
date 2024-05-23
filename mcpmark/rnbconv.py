@@ -33,6 +33,7 @@ def read_header(contents):
 def proc_tests(test_dict):
     out = deepcopy(test_dict)
     # Delete null points, accepting default.
+    # https://otter-grader.readthedocs.io/en/latest/test_files/python_format.html
     if 'points' in out and out['points'] is None:
         out.pop('points')
     for suite in out.get('suites', []):

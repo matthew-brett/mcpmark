@@ -11,8 +11,10 @@ import re
 from pathlib import Path
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 import shutil
+import warnings
 
 import jupytext
+import pandas as pd
 
 from ..mcputils import (read_config, get_minimal_df, get_notebooks,
                        component_path, MCPError, has_md_checker)
@@ -60,19 +62,34 @@ def comp_tests_from_script(c_script_path):
 
 
 
-def expected_student_dirs(config):
+def expected_student_dirs(config, drop_missing=False):
     df = get_minimal_df(config)
     stid_col = config['student_id_col']
     known_submitters = config.get('known_submitters', [])
     known_missing = config.get('known_missing', [])
+    # These are students known to have no IDs, and who therefore must
+    # be missing.
+    no_ids = config.get('no_ids', {})
+    other_id_col = no_ids.get('other_id_col')
+    no_id_students = no_ids.get('students', [])
     dir_names = []
     for i_val, row in df.iterrows():
         student_id = row.loc[stid_col]
+        if pd.isna(student_id):
+            if drop_missing:
+                warnings.warn(f'Missing identifier for {row}')
+                continue
+            if other_id_col and row[other_id_col] in no_id_students:
+                continue
+            raise RuntimeError(
+                f'Student id missing for col "{stid_col}": row: {row}')
         if known_submitters and student_id not in known_submitters:
             continue
-        if student_id not in known_missing:
-            dir_names.append(student_id)
-    assert len(set(dir_names)) == len(dir_names)  # Unique check
+        if student_id in known_missing:
+            continue
+        if student_id in dir_names:
+            raise RuntimeError(f'Duplicate student id: "{student_id}"')
+        dir_names.append(student_id)
     return dir_names
 
 
@@ -94,6 +111,9 @@ def get_parser():
                         help='Path to config file')
     parser.add_argument('--out-path',
                         help='Path for output directories')
+    parser.add_argument(
+        '--drop-missing', action='store_true',
+        help='If set, drop missing rows with missing student identifier')
     return parser
 
 
@@ -108,7 +128,7 @@ def main():
     component_base = component_path(config)
     create_dirs(component_base, component_names)
     sub_path = config['submissions_path']
-    for login_id in expected_student_dirs(config):
+    for login_id in expected_student_dirs(config, args.drop_missing):
         exp_path = op.join(sub_path, login_id)
         if not op.isdir(exp_path):
             raise RuntimeError(f'{exp_path} expected, but does not exist')

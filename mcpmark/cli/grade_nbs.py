@@ -16,12 +16,16 @@ def get_parser():
     parser.add_argument('--nb-lext', action='append',
                         help='Ordered list of notebook extensions '
                         'to search for (lower case, including . prefix)')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='More verbosity')
     return parser
 
 
-def grade_nbs(nb_fnames, cwd):
+def grade_nbs(nb_fnames, cwd, verbose=False):
     grades = {}
     for nb_fname in nb_fnames:
+        if verbose:
+            print(f'Grading {nb_fname}')
         grades[loginfn2login(nb_fname)] = grade_nb_fname(nb_fname, cwd)
     return grades
 
@@ -59,7 +63,7 @@ def main():
     if len(nb_fnames) == 0:
         raise RuntimeError(f'No notebooks found in path "{nb_path}" '
                            f'with extensions {lexts}')
-    all_grades = grade_nbs(nb_fnames, nb_path)
+    all_grades = grade_nbs(nb_fnames, nb_path, args.verbose)
     assert len(all_grades) == len(nb_fnames)
     write_grade_report(all_grades, nb_path)
     write_grade_csv(config, all_grades, nb_path)

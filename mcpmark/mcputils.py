@@ -156,8 +156,11 @@ class CanvasHandler(SubmissionHandler):
         required = ('ID', 'Student', 'SIS User ID', 'SIS Login ID', 'Section')
         dtypes = {'ID': int, 'SIS User ID': int}
         df = ct.to_minimal_df(fname, required, dtypes)
+        df['Email'] = df['SIS Login ID'].str.lower()
+        df['school_user'] = (df['SIS Login ID'].
+                             str.split('@', expand=True)
+                             .iloc[:, 0])
         if 'github_users_path' in self.config:
-            df['Email'] = df['SIS Login ID'].str.lower()
             gh_users = pd.read_csv(self.config['github_users_path'])
             df = df.merge(gh_users[['gh_user', 'Email']],
                                    on='Email',
@@ -172,6 +175,13 @@ def attend_fn2info(fname):
     if match is None:
         raise ValueError(f'{froot} does not match')
     return match.groups()
+
+
+def astype_apply(val, converter):
+    try:
+        return converter(val)
+    except ValueError:
+        return None
 
 
 class AttendHandler(SubmissionHandler):
@@ -201,7 +211,7 @@ class AttendHandler(SubmissionHandler):
         df = pd.read_excel(fname)
         dtypes = {'StudentId': int}
         for name, dt in dtypes.items():
-            df[name] = df[name].astype(dt)
+            df[name] = df[name].apply(astype_apply, converter=dt)
         df['school_user'] = df['Email'].str.split('@').apply(lambda v : v[0])
         df = df.merge(self.gh_users, on='Email', how='left')
         missing = df['gh_user'].isna()
