@@ -26,8 +26,7 @@ jobs:
           pip install pytest-cov
       - name: Install mcpmark
         run: |
-          pip install flit
-          flit install
+          pip install -e .
       - name: Run tests
         run: |
           pytest mcpmark --log-level DEBUG --cov-config=.coveragerc --cov=mcpmark
