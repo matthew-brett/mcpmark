@@ -2,22 +2,26 @@
 requires = ["flit"]
 build-backend = "flit.buildapi"
 
-[tool.flit.metadata]
-module = "mcpmark"
+[project]
+name = "mcpmark"
 author = "Matthew Brett"
 author-email = "matthew.brett@gmail.com"
 home-page="https://github.com/matthew-brett/mcpmark"
 classifiers = ["License :: OSI Approved :: BSD License",
                "Programming Language :: Python :: 3"]
-description-file="README.md"
+readme = "README.md"
+dynamic = ["version", "description"]
 # Check against requirements.txt
 requires = [
     'gradools',
     'rnbgrader>=0.2',
 ]
-requires-python=">=3.6"
+requires-python = ">=3.8"
 
-[tool.flit.scripts]
+[project.urls]
+Home = "https://github.com/matthew-brett/project-grader"
+
+[project.scripts]
 mcp-check-unpack = "mcpmark.cli.check_unpack:main"
 mcp-scale-combine = "mcpmark.cli.scale_combine:main"
 mcp-cp-models = "mcpmark.cli.cp_models:main"
@@ -40,3 +44,8 @@ mcp-allow-raise = "mcpmark.cli.allow_raise:main"
 mcp-add-categories = "mcpmark.cli.categories:add_categories"
 mcp-ana-categories = "mcpmark.cli.categories:ana_categories"
 rnb-conv-nbs = "mcpmark.rnbconv:main"
+
+[project.optional-dependencies]
+test = [
+    'pytest'
+]
