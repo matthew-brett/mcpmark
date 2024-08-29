@@ -41,7 +41,10 @@ def read_plots(comp_path, plot_qs):
     splot_qs = set(plot_qs)
     plot_fname = comp_path / 'marking' / 'plot_nb.ipynb'
     if not plot_fname.is_file():
-        assert len(splot_qs) == 0
+        if len(splot_qs) != 0:
+            raise MCPError('Plot questions noted in assign_config file '
+                           'but no plot_nb.ipynb in marking folder; '
+                           'have you graded the plots?')
         return pd.DataFrame()
     scores = get_plot_scores(plot_fname)
     for login, vs in scores.items():
