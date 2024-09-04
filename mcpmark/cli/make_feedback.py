@@ -102,9 +102,11 @@ def fname2login_ext(fname):
 
 class ModPath:
 
-    def __init__(self, root_path, handler=None):
+    def __init__(self, root_path, handler=None, assignment_name=None):
         self.root_path = root_path
         self.handler = handler
+        self.assignment_name = assignment_name
+        self._assign_parts = (assignment_name,) if assignment_name else ()
 
     def __call__(self, fname):
         in_nb_dir, login_id, ext = fname2login_ext(fname)
@@ -114,21 +116,24 @@ class ModPath:
                        login_id + ext)
 
     def login2out_base(self, login):
-        return self.root_path
+        return op.join(*self._get_out_parts(login))
+
+    def _get_out_parts(self, login):
+        return (self.root_path,) + self._assign_parts
 
 
 class FBPath(ModPath):
 
-    def login2out_base(self, login_id):
-        jh_user = self.handler.login2jh(login_id)
-        return op.join(self.root_path, jh_user, 'marking')
+    def _get_out_parts(self, login):
+        jh_user = self.handler.login2jh(login)
+        return (self.root_path, jh_user, 'marking') + self._assign_parts
 
 
 class ExtPath(FBPath):
 
-    def login2out_base(self, login_id):
-        uuid = self.handler.login2uuid(login_id)
-        return op.join(self.root_path, uuid)
+    def _get_out_parts(self, login):
+        uuid = self.handler.login2uuid(login)
+        return (self.root_path, uuid) + self._assign_parts
 
 
 def write_component(component_path, nbs, out_nbs):
@@ -299,7 +304,7 @@ def main():
                            ', '.join(type2func))
     root_path = args.type if args.out_path is None else args.out_path
     ensure_dir(root_path, args.clobber, args.clobber)
-    pth_maker = type2func[args.type](root_path)
+    pth_maker = type2func[args.type](root_path, assignment_name=config['assignment_name'])
     for component in args.component:
         component_path = get_component_path(config, component)
         if args.type == 'external':
