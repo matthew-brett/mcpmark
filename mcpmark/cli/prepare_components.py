@@ -61,8 +61,7 @@ def comp_tests_from_script(c_script_path):
     return ns['COMPONENT_TESTS']
 
 
-
-def expected_student_dirs(config, drop_missing=False):
+def expected_login_ids(config, drop_missing=False):
     df = get_minimal_df(config)
     stid_col = config['student_id_col']
     known_submitters = config.get('known_submitters', [])
@@ -128,7 +127,7 @@ def main():
     component_base = component_path(config)
     create_dirs(component_base, component_names)
     sub_path = config['submissions_path']
-    for login_id in expected_student_dirs(config, args.drop_missing):
+    for login_id in expected_login_ids(config, args.drop_missing):
         exp_path = op.join(sub_path, login_id)
         if not op.isdir(exp_path):
             raise RuntimeError(f'{exp_path} expected, but does not exist')
