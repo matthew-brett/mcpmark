@@ -1,11 +1,11 @@
 # (Multiple) component marking
 
-Some tools I use when marking homework with with single or multiple Jupyter
-notebook components.
+Some tools I (MB) use when marking homework with with single or multiple
+Jupyter notebook components.
 
 The notebooks may have questions for manual marking, and plots for marking.
 
-They assume some Canvas](https://www.instructure.com/canvas) conventions of
+They assume some [Canvas](https://www.instructure.com/canvas) conventions of
 naming files, and grade output CSV format.
 
 The tools are mainly command line utilities, with some supporting code in
@@ -56,7 +56,7 @@ mcp-cp-models
 mcp-scale-combine
 ```
 
-## Getting set up
+## Install
 
 Make a virtual environment / Conda environment for running the marking code, and set yourself up in that environment:
 
@@ -73,18 +73,11 @@ conda activate marking-env
 conda install pip
 ```
 
-To install locally from the repository, you will need
-[flit](https://pypi.org/project/flit):
-
-```
-pip install flit
-```
-
 Then install MCPMark with its dependencies:
 
 ```
 cd mcpmark  # Directory containing this README
-flit install -s
+pip install -e -r requirements.txt
 ```
 
 Test all is working as expected with:
@@ -104,7 +97,9 @@ pytest mcpmark
   files for single notebook submission). Download some directory e.g.
   `submissions` in current directory. There should be one `.zip` file per
   student in the case of multiple notebook submissions, or one `.ipynb` file
-  per student in case of single submissions.
+  per student in case of single submissions.  You might want to use `zip` from
+  the command line with e.g. `unzip ~/Downloads/submissions.zip -d
+  submissions`.
 * Download Canvas marks CSV file to this (`homework1`) directory.
 * Edit `assign_config.yaml` --- see `doc/` for an example.   Use the
   `components` field to name and define components.  Each component corresponds
@@ -136,9 +131,8 @@ pytest mcpmark
     * Copy tests etc into components directory with `mcp-cp-models`
     * e.g. `mcp-find-duplicates components/my_component/*.Rmd` to analyze
       duplicates, write summary into some file, say `report.md`.
-    * Check notebook execution with `mcp-run-notebooks <path_to_notebooks>`.
-      Consider running this with e.g. `rerun mcp-run-notebooks
-      components/pandering` to continuously test notebooks.
+    * Process notebooks to run through cells with errors, by running
+      `mcp-allow-raise <component>`.
     * `mcp-extract-manual <component_name>` (component name optional for single
       component submissions). Edit notebooks where manual component not found.
       Maybe e.g. `rerun mcp-extract-manual pandering`.
