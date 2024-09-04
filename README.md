@@ -23,6 +23,7 @@ mcp-find-duplicates $COMPONENTS_DIR/*/*.Rmd
 mcp-cp-models
 mcp-extract-manual
 mcp-allow-raise
+mcp-var-check
 mcp-extract-plots
 mcp-grade-nbs
 # Review `<component>/marking/autograde.md`.
@@ -43,6 +44,7 @@ mcp-cp-models
 # For each component
     COMPONENT=my_component
     mcp-allow-raise $COMPONENT
+    mcp-var-check $COMPONENT
     mcp-grade-nbs $COMPONENT
     # Review `$COMPONENTS_DIR/$COMPONENT/marking/autograde.md`.
     # Rerun after any edits.
@@ -133,6 +135,9 @@ pytest mcpmark
       duplicates, write summary into some file, say `report.md`.
     * Process notebooks to run through cells with errors, by running
       `mcp-allow-raise <component>`.
+    * Check for possible instances where the student has overwritten a test
+      variable, causing tests to error at the end of the notebook, when they
+      pass initially, with `mcp-var-check <component>`.
     * `mcp-extract-manual <component_name>` (component name optional for single
       component submissions). Edit notebooks where manual component not found.
       Maybe e.g. `rerun mcp-extract-manual pandering`.
